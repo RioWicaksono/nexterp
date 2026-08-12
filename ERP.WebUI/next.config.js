@@ -11,10 +11,8 @@ const nextConfig = {
   // Clean URLs
   trailingSlash: true,
 
-  // PostCSS and Tailwind CSS
-  webpack(config) {
-    return config;
-  },
+  // Empty turbopack config to allow webpack config to work
+  turbopack: {},
 
   // Environment variables exposed to browser
   env: {
