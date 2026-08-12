@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Minimal CSS - Tailwind will be configured separately */
 :root {
   --primary: #3b82f6;
