@@ -77,7 +77,7 @@ describe('Export Utilities', () => {
 
     it('should handle empty data array', () => {
       const columns = [{ key: 'id', header: 'ID' }];
-      const data: unknown[] = [];
+      const data: object[] = [];
 
       const result = toCSV({ columns, data });
 
