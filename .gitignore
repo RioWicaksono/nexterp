@@ -1,0 +1,102 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+appsettings.*.json
+!.appsettings.example.json
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+*.csx
+*.slnx
+
+# Database
+*.mdf
+*.ldf
+*.dbmdl
+*.db
+!*.db.example
+
+# Backup files
+*.bak
+*.backup
+
+# Shippable
+.config/
+
+# Misc
+*.cache
+*.tmp
+*.temp
+CLAUDE.md
+
+# Claude Code workflows
+.claude/workflows/*.yaml
+!.claude/workflows/README.md
+
+# Next.js
+ERP.WebUI/.next/
+ERP.WebUI/node_modules/
+ERP.WebUI/out/
+
+# Screenshots
+screenshots/
+*.png

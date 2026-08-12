@@ -1,0 +1,400 @@
+# ============================================================
+# NEXTERP ERP - Production Docker Compose
+# ============================================================
+# Production-ready orchestration with:
+# - Resource limits & reservations
+# - Health checks for all services
+# - Persistent volumes with backup support
+# - Network isolation
+# - SSL-ready reverse proxy
+# - Secrets management via env files
+# ============================================================
+
+version: "3.8"
+
+services:
+  # ===========================================
+  # PostgreSQL Database (Primary Data Store)
+  # ===========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexterp_postgres_prod
+    restart: always
+    command:
+      - postgres
+      - -c=max_connections=200
+      - -c=shared_buffers=256MB
+      - -c=effective_cache_size=512MB
+      - -c=maintenance_work_mem=64MB
+      - -c=checkpoint_completion_target=0.9
+      - -c=wal_buffers=16MB
+      - -c=default_statistics_target=100
+      - -c=random_page_cost=1.1
+      - -c=effective_io_concurrency=200
+      - -c=work_mem=4MB
+      - -c=min_wal_size=1GB
+      - -c=max_wal_size=4GB
+      - -c=max_worker_processes=4
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-nexterp_db}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --encoding=UTF8 --locale=C"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Persistent data volume
+      - postgres_data_prod:/var/lib/postgresql/data
+      # Init scripts (read-only)
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # Backup mount point
+      - ./docker/backup/postgres:/backup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-nexterp_db}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - nexterp_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      nproc:
+        soft: 4096
+        hard: 4096
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /run/postgresql:mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ===========================================
+  # Redis Cache (Session & Query Cache)
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    container_name: nexterp_redis_prod
+    restart: always
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --maxmemory 200mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --appendonly yes
+      --appendfsync everysec
+      --stop-writes-on-bgsave-error yes
+      --rdbcompression yes
+      --dbfilename dump.rdb
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      # Persistent data volume
+      - redis_data_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - nexterp_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=10M,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ===========================================
+  # .NET API Backend
+  # ===========================================
+  api:
+    build:
+      context: .
+      dockerfile: ERP.API/Dockerfile
+      args:
+        BUILD_CONFIG: Release
+        DOTNET_RUNTIME_VERSION: "8.0"
+    container_name: nexterp_api_prod
+    restart: always
+    environment:
+      # ASP.NET Core Configuration
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: "http://+:5000;http://+:5001"
+      ASPNETCORE_Kestrel__Limits__MaxConcurrentConnections: 100
+      ASPNETCORE_Kestrel__Limits__MaxConcurrentUpgradedConnections: 100
+      ASPNETCORE_Kestrel__Limits__RequestHeadersTimeout: 00:00:30
+      # Database Configuration
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-nexterp_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Pooling=true;Minimum Pool Size=5;Maximum Pool Size=100;Connection Idle Lifetime=300"
+      # Redis Configuration
+      Redis__ConnectionString: "redis://default:${REDIS_PASSWORD}@redis:6379/0"
+      Redis__InstanceName: "nexterp_"
+      # JWT Configuration
+      Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required - minimum 32 characters}
+      Jwt__Issuer: NEXTERP
+      Jwt__Audience: NEXTERP.Client
+      Jwt__AccessTokenExpirationMinutes: ${JWT_ACCESS_TOKEN_MINUTES:-60}
+      Jwt__RefreshTokenExpirationDays: ${JWT_REFRESH_TOKEN_DAYS:-7}
+      # Logging Configuration
+      Logging__LogLevel__Default: Information
+      Logging__LogLevel__Microsoft: Warning
+      Logging__LogLevel__Microsoft.EntityFrameworkCore: Warning
+      Logging__Console__FormatterName: json
+      # Health Check
+      HealthChecks__UI__Enabled: "true"
+      HealthChecks__PrometheusMetrics__Enabled: "false"
+    ports:
+      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || curl -f http://localhost:5000/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    networks:
+      - nexterp_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1.5G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=10M,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ===========================================
+  # Next.js Frontend (Web UI)
+  # ===========================================
+  frontend:
+    build:
+      context: .
+      dockerfile: ERP.WebUI/Dockerfile
+      args:
+        NODE_ENV: production
+        NEXT_TELEMETRY_DISABLED: "1"
+    container_name: nexterp_frontend_prod
+    restart: always
+    environment:
+      # API Configuration
+      NEXT_PUBLIC_API_URL: ${FRONTEND_API_URL:-/api}
+      NEXT_PUBLIC_APP_URL: ${FRONTEND_APP_URL:-https://nexterp.example.com}
+      NEXT_PUBLIC_APP_NAME: NEXTERP ERP
+      # Performance Optimization
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: production
+      # Optional: Analytics/Tracking
+      NEXT_PUBLIC_GA_ID: ${GA_MEASUREMENT_ID:-}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - nexterp_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=10M,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ===========================================
+  # Nginx Reverse Proxy (SSL Termination)
+  # ===========================================
+  nginx:
+    image: nginx:alpine
+    container_name: nexterp_nginx_prod
+    restart: always
+    ports:
+      # HTTP (redirects to HTTPS)
+      - "${HTTP_PORT:-80}:80"
+      # HTTPS (SSL termination)
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      # Main configuration
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      # SSL certificates directory
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      # Custom error pages
+      - ./docker/nginx/html:/usr/share/nginx/html:ro
+      # Nginx logs (for centralized logging)
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - nexterp_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=5M,mode=1777
+      - /var/run:size=1M,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ===========================================
+  # PostgreSQL Backup Service
+  # ===========================================
+  postgres-backup:
+    image: postgres:16-alpine
+    container_name: nexterp_postgres_backup
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-nexterp_db}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+      BACKUP_SCHEDULE: "${BACKUP_SCHEDULE:-0 2 * * *}"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data:ro
+      - ./docker/backup/postgres:/backup
+      - ./docker/backup/scripts:/scripts:ro
+    entrypoint: ["/bin/sh", "/scripts/backup.sh"]
+    networks:
+      - nexterp_backend
+    profiles:
+      - backup
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+# ===========================================
+# Volumes (Persistent Data)
+# ===========================================
+volumes:
+  postgres_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_DATA_PATH:-./data/postgres}
+  redis_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_PATH:-./data/redis}
+  nginx_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${NGINX_LOG_PATH:-./logs/nginx}
+
+# ===========================================
+# Networks (Isolated Backend)
+# ===========================================
+networks:
+  nexterp_backend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-nexterp
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.name: br-nexterp
+    ipam:
+      driver: default
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.20.0.0/16}
+          gateway: ${NETWORK_GATEWAY:-172.20.0.1}

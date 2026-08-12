@@ -1,0 +1,197 @@
+/* Minimal CSS - Tailwind will be configured separately */
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --accent: #10b981;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.card {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--background);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+/* Loading spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Center content */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.badge-success {
+  background-color: rgb(220 252 231);
+  color: rgb(22 101 52);
+}
+
+.badge-info {
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+}
+
+.badge-warning {
+  background-color: rgb(254 243 199);
+  color: rgb(146 64 14);
+}
+
+.badge-danger {
+  background-color: rgb(254 226 226);
+  color: rgb(153 27 27);
+}
+
+.dark .badge-success {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: rgb(52 211 153);
+}
+
+.dark .badge-info {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: rgb(96 165 250);
+}
+
+.dark .badge-warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: rgb(251 191 36);
+}
+
+.dark .badge-danger {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(252 165 165);
+}
+
+/* Safe area padding for mobile */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}

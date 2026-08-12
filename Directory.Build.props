@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS8632;CS0649;CS8601;CS8602;CS8603;CS8604</NoWarn>
+  </PropertyGroup>
+</Project>

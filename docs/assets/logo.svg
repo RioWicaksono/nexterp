@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Icon Box -->
+  <g transform="translate(0, 10)">
+    <rect width="80" height="80" rx="16" fill="url(#grad1)" filter="url(#shadow)"/>
+    <!-- N Letter -->
+    <path d="M20 60 L20 20 L28 20 L48 50 L48 20 L56 20 L56 60 L48 60 L28 30 L28 60 Z" fill="white"/>
+    <!-- Integration dots -->
+    <circle cx="68" cy="14" r="5" fill="rgba(255,255,255,0.9)"/>
+    <circle cx="68" cy="40" r="5" fill="rgba(255,255,255,0.7)"/>
+    <circle cx="68" cy="66" r="5" fill="rgba(255,255,255,0.5)"/>
+  </g>
+
+  <!-- Text: NEXTERP -->
+  <text x="100" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="42" font-weight="700" fill="#1F2937">
+    NEXTERP
+  </text>
+
+  <!-- Tagline -->
+  <text x="100" y="82" font-family="'Segoe UI', Arial, sans-serif" font-size="14" fill="#6B7280">
+    Enterprise Resource Planning
+  </text>
+</svg>

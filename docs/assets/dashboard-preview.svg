@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8FAFC"/>
+      <stop offset="100%" style="stop-color:#EFF6FF"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB"/>
+      <stop offset="100%" style="stop-color:#1D4ED8"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)"/>
+
+  <!-- Browser Window -->
+  <g transform="translate(50, 50)">
+    <rect width="1100" height="700" rx="12" fill="white" filter="url(#shadow)"/>
+
+    <!-- Browser Header -->
+    <rect width="1100" height="40" rx="12" fill="#F3F4F6"/>
+    <rect y="28" width="1100" height="12" fill="#F3F4F6"/>
+    <circle cx="25" cy="20" r="6" fill="#EF4444"/>
+    <circle cx="45" cy="20" r="6" fill="#F59E0B"/>
+    <circle cx="65" cy="20" r="6" fill="#10B981"/>
+    <rect x="100" y="10" width="200" height="20" rx="4" fill="#E5E7EB"/>
+
+    <!-- Sidebar -->
+    <rect x="0" y="40" width="60" height="660" fill="#1E293B"/>
+    <rect x="10" y="60" width="40" height="40" rx="8" fill="#374151"/>
+    <rect x="10" y="120" width="40" height="40" rx="8" fill="#374151"/>
+    <rect x="10" y="180" width="40" height="40" rx="8" fill="#374151"/>
+    <rect x="10" y="240" width="40" height="40" rx="8" fill="#374151"/>
+
+    <!-- Main Content Area -->
+    <!-- Header Bar -->
+    <rect x="60" y="40" width="1040" height="60" fill="white"/>
+    <rect x="60" y="90" width="1040" height="1" fill="#E5E7EB"/>
+
+    <!-- Dashboard Title -->
+    <text x="90" y="80" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F2937">Dashboard</text>
+
+    <!-- Stats Cards Row -->
+    <g transform="translate(90, 120)">
+      <!-- Card 1 -->
+      <rect width="230" height="100" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="15" y="30" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Revenue</text>
+      <text x="15" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">$124,500</text>
+      <text x="15" y="85" font-family="Arial, sans-serif" font-size="12" fill="#10B981">+15.2% from last month</text>
+
+      <!-- Card 2 -->
+      <rect x="260" width="230" height="100" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="275" y="30" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Total Orders</text>
+      <text x="275" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">1,234</text>
+      <text x="275" y="85" font-family="Arial, sans-serif" font-size="12" fill="#10B981">+8.5% from last month</text>
+
+      <!-- Card 3 -->
+      <rect x="520" width="230" height="100" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="535" y="30" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Active Projects</text>
+      <text x="535" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">42</text>
+      <text x="535" y="85" font-family="Arial, sans-serif" font-size="12" fill="#10B981">+3 new this week</text>
+
+      <!-- Card 4 -->
+      <rect x="780" width="230" height="100" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="795" y="30" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Employees</text>
+      <text x="795" y="60" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">156</text>
+      <text x="795" y="85" font-family="Arial, sans-serif" font-size="12" fill="#10B981">+2 hired this month</text>
+    </g>
+
+    <!-- Chart Area -->
+    <g transform="translate(90, 250)">
+      <rect width="700" height="250" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="15" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1F2937">Revenue Overview</text>
+
+      <!-- Chart Grid -->
+      <line x1="40" y1="60" x2="40" y2="220" stroke="#E5E7EB" stroke-width="1"/>
+      <line x1="40" y1="220" x2="680" y2="220" stroke="#E5E7EB" stroke-width="1"/>
+
+      <!-- Bars -->
+      <rect x="60" y="140" width="40" height="80" rx="4" fill="#3B82F6"/>
+      <rect x="130" y="120" width="40" height="100" rx="4" fill="#3B82F6"/>
+      <rect x="200" y="100" width="40" height="120" rx="4" fill="#3B82F6"/>
+      <rect x="270" y="110" width="40" height="110" rx="4" fill="#3B82F6"/>
+      <rect x="340" y="90" width="40" height="130" rx="4" fill="#3B82F6"/>
+      <rect x="410" y="80" width="40" height="140" rx="4" fill="#3B82F6"/>
+      <rect x="480" y="70" width="40" height="150" rx="4" fill="#10B981"/>
+      <rect x="550" y="60" width="40" height="160" rx="4" fill="#10B981"/>
+
+      <!-- Labels -->
+      <text x="80" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Jan</text>
+      <text x="150" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Feb</text>
+      <text x="220" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Mar</text>
+      <text x="290" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Apr</text>
+      <text x="360" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">May</text>
+      <text x="430" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Jun</text>
+      <text x="500" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Jul</text>
+      <text x="570" y="235" font-family="Arial, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle">Aug</text>
+    </g>
+
+    <!-- Recent Orders Panel -->
+    <g transform="translate(810, 250)">
+      <rect width="280" height="250" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="15" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1F2937">Recent Orders</text>
+
+      <!-- Order 1 -->
+      <rect y="40" width="250" height="50" rx="4" fill="#F9FAFB"/>
+      <circle cx="20" cy="65" r="15" fill="#DBEAFE"/>
+      <text x="20" y="70" font-family="Arial, sans-serif" font-size="12" fill="#2563EB" text-anchor="middle">SO</text>
+      <text x="45" y="58" font-family="Arial, sans-serif" font-size="11" fill="#1F2937">SO-2026-0892</text>
+      <text x="45" y="72" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">TechCorp Inc.</text>
+      <text x="200" y="65" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1F2937">$4,250</text>
+
+      <!-- Order 2 -->
+      <rect y="95" width="250" height="50" rx="4" fill="#F9FAFB"/>
+      <circle cx="20" cy="120" r="15" fill="#D1FAE5"/>
+      <text x="20" y="125" font-family="Arial, sans-serif" font-size="12" fill="#059669" text-anchor="middle">SO</text>
+      <text x="45" y="113" font-family="Arial, sans-serif" font-size="11" fill="#1F2937">SO-2026-0891</text>
+      <text x="45" y="127" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Global Retail</text>
+      <text x="200" y="120" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1F2937">$2,890</text>
+
+      <!-- Order 3 -->
+      <rect y="150" width="250" height="50" rx="4" fill="#F9FAFB"/>
+      <circle cx="20" cy="175" r="15" fill="#DBEAFE"/>
+      <text x="20" y="180" font-family="Arial, sans-serif" font-size="12" fill="#2563EB" text-anchor="middle">SO</text>
+      <text x="45" y="168" font-family="Arial, sans-serif" font-size="11" fill="#1F2937">SO-2026-0890</text>
+      <text x="45" y="182" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">SalesForce Ltd</text>
+      <text x="200" y="175" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1F2937">$8,450</text>
+    </g>
+
+    <!-- Quick Actions -->
+    <g transform="translate(90, 520)">
+      <rect width="500" height="150" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="15" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1F2937">Quick Actions</text>
+
+      <!-- Action Buttons -->
+      <rect x="15" y="45" width="100" height="35" rx="6" fill="#2563EB"/>
+      <text x="65" y="67" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">+ New Order</text>
+
+      <rect x="125" y="45" width="100" height="35" rx="6" fill="#F3F4F6"/>
+      <text x="175" y="67" font-family="Arial, sans-serif" font-size="12" fill="#374151" text-anchor="middle">+ Invoice</text>
+
+      <rect x="235" y="45" width="100" height="35" rx="6" fill="#F3F4F6"/>
+      <text x="285" y="67" font-family="Arial, sans-serif" font-size="12" fill="#374151" text-anchor="middle">+ Expense</text>
+
+      <rect x="345" y="45" width="100" height="35" rx="6" fill="#F3F4F6"/>
+      <text x="395" y="67" font-family="Arial, sans-serif" font-size="12" fill="#374151" text-anchor="middle">+ Employee</text>
+
+      <!-- Alerts -->
+      <text x="15" y="105" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Alerts</text>
+
+      <rect y="115" width="480" height="28" rx="4" fill="#FEF3C7"/>
+      <circle cx="12" cy="129" r="4" fill="#F59E0B"/>
+      <text x="22" y="133" font-family="Arial, sans-serif" font-size="11" fill="#92400E">Widget Pro - Low stock (15 remaining, reorder at 50)</text>
+    </g>
+
+    <!-- Notifications -->
+    <g transform="translate(610, 520)">
+      <rect width="480" height="150" rx="8" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="15" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1F2937">Notifications</text>
+
+      <rect y="40" width="450" height="40" rx="4" fill="#F9FAFB"/>
+      <circle cx="20" cy="60" r="12" fill="#DCFCE7"/>
+      <text x="20" y="65" font-family="Arial, sans-serif" font-size="10" fill="#16A34A" text-anchor="middle">✓</text>
+      <text x="40" y="55" font-family="Arial, sans-serif" font-size="11" fill="#1F2937">Leave request approved</text>
+      <text x="40" y="70" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Sarah Martinez - 2 minutes ago</text>
+
+      <rect y="85" width="450" height="40" rx="4" fill="#F9FAFB"/>
+      <circle cx="20" cy="105" r="12" fill="#FEE2E2"/>
+      <text x="20" y="110" font-family="Arial, sans-serif" font-size="10" fill="#DC2626" text-anchor="middle">!</text>
+      <text x="40" y="100" font-family="Arial, sans-serif" font-size="11" fill="#1F2937">Invoice overdue</text>
+      <text x="40" y="115" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">INV-2026-0892 - 15 days overdue</text>
+    </g>
+  </g>
+
+  <!-- Watermark -->
+  <text x="600" y="780" font-family="Arial, sans-serif" font-size="14" fill="#94A3B8" text-anchor="middle">NEXTERP - Enterprise Resource Planning</text>
+</svg>
