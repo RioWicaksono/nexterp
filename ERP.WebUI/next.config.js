@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Standalone output for Docker
-  output: 'standalone',
-
   // Image optimization
   images: {
     unoptimized: true,
@@ -13,12 +10,6 @@ const nextConfig = {
 
   // Empty turbopack config to allow webpack config to work
   turbopack: {},
-
-  // Environment variables exposed to browser
-  env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  },
 
   // Experimental features
   experimental: {
