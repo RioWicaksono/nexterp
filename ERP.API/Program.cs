@@ -245,8 +245,6 @@ app.UseAuthentication();
 app.UseRateLimiting();
 app.UseAuthorization();
 
-app.MapGet("/test", () => Results.Ok(new { message = "Routing works!", timestamp = DateTime.UtcNow }));
-
 app.MapControllers();
 
 // Health check endpoints
