@@ -1,170 +1,258 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import {
+  Package, DollarSign, ShoppingCart, FileText, Users, BarChart3,
+  Building2, CheckCircle2, Play, ArrowRight, Sparkles, Shield, Zap,
+  Globe, Clock, Headphones, ChevronRight, Menu, X, Star
+} from 'lucide-react'
 
 const features = [
-  { icon: '📦', title: 'Inventory', desc: 'Multi-warehouse stock tracking with batch/serial' },
-  { icon: '💰', title: 'Accounting', desc: 'Double-entry bookkeeping & financial reports' },
-  { icon: '🛒', title: 'Sales', desc: 'Customers, orders, invoices & payments' },
-  { icon: '📝', title: 'Purchasing', desc: 'Suppliers, PO & goods receipt' },
-  { icon: '👥', title: 'HRM', desc: 'Employees, attendance & leave' },
-  { icon: '📊', title: 'Projects', desc: 'Tasks, time tracking & Gantt' },
-  { icon: '🏢', title: 'Assets', desc: 'Fixed assets & depreciation' },
-  { icon: '✅', title: 'Quality', desc: 'Inspections & NCR management' },
+  { icon: Package, title: 'Inventory Management', desc: 'Multi-warehouse stock tracking with batch/serial number support for complete traceability', color: 'blue' },
+  { icon: DollarSign, title: 'Accounting', desc: 'Double-entry bookkeeping with automated financial reports and tax compliance', color: 'emerald' },
+  { icon: ShoppingCart, title: 'Sales', desc: 'End-to-end order management from quotes to invoices and payment tracking', color: 'violet' },
+  { icon: FileText, title: 'Purchasing', desc: 'Streamlined supplier management, purchase orders, and goods receipt processing', color: 'amber' },
+  { icon: Users, title: 'Human Resources', desc: 'Complete HRM with attendance tracking, leave management, and payroll integration', color: 'rose' },
+  { icon: BarChart3, title: 'Analytics', desc: 'Real-time dashboards and KPI tracking for data-driven business decisions', color: 'cyan' },
+  { icon: Building2, title: 'Fixed Assets', desc: 'Asset lifecycle management with depreciation scheduling and maintenance tracking', color: 'indigo' },
+  { icon: CheckCircle2, title: 'Quality Control', desc: 'Inspection workflows, NCR management, and CAPA tracking for compliance', color: 'teal' },
 ]
 
 const modules = [
-  { name: 'Core Modules', items: ['Base/Users', 'Inventory', 'Accounting', 'Sales', 'Purchasing'] },
-  { name: 'Extended', items: ['HRM', 'Projects', 'Analytics'] },
-  { name: 'Enterprise', items: ['Assets', 'Quality'] },
+  { name: 'Foundation', items: ['Organization & Users', 'Inventory & Warehouses', 'Chart of Accounts', 'Tax Configuration'], icon: '01' },
+  { name: 'Operations', items: ['Sales & Customers', 'Purchasing & Suppliers', 'Projects & Tasks', 'HRM & Payroll'], icon: '02' },
+  { name: 'Excellence', items: ['Financial Reports', 'Asset Management', 'Quality Control', 'Advanced Analytics'], icon: '03' },
+]
+
+const stats = [
+  { value: '500+', label: 'Enterprise Clients', icon: Globe },
+  { value: '99.9%', label: 'Uptime Guarantee', icon: Shield },
+  { value: '10K+', label: 'Daily Active Users', icon: Users },
+  { value: '24/7', label: 'Expert Support', icon: Headphones },
 ]
 
 const plans = [
-  { name: 'Starter', price: '$99', users: 'Up to 10', features: ['Core Modules', 'Email Support', '50GB Storage'] },
-  { name: 'Professional', price: '$299', users: 'Up to 50', features: ['All Modules', 'Priority Support', '200GB Storage', 'API Access'] },
-  { name: 'Enterprise', price: 'Custom', users: 'Unlimited', features: ['All Features', 'Dedicated Support', 'Unlimited', 'SSO & On-Premise'] },
+  {
+    name: 'Starter',
+    price: '$99',
+    users: 'Up to 10 users',
+    features: ['Core Modules', 'Email Support', '50GB Storage', 'Basic Reports'],
+    popular: false
+  },
+  {
+    name: 'Professional',
+    price: '$299',
+    users: 'Up to 50 users',
+    features: ['All Modules', 'Priority Support', '200GB Storage', 'API Access', 'Custom Reports'],
+    popular: true
+  },
+  {
+    name: 'Enterprise',
+    price: 'Custom',
+    users: 'Unlimited users',
+    features: ['All Features', 'Dedicated Support', 'Unlimited Storage', 'SSO Integration', 'On-Premise Option', 'Custom Development'],
+    popular: false
+  },
 ]
+
+const colorMap: Record<string, { bg: string, icon: string, border: string, hover: string }> = {
+  blue: { bg: 'bg-blue-50', icon: 'text-blue-600', border: 'border-blue-100', hover: 'group-hover:bg-blue-100' },
+  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100', hover: 'group-hover:bg-emerald-100' },
+  violet: { bg: 'bg-violet-50', icon: 'text-violet-600', border: 'border-violet-100', hover: 'group-hover:bg-violet-100' },
+  amber: { bg: 'bg-amber-50', icon: 'text-amber-600', border: 'border-amber-100', hover: 'group-hover:bg-amber-100' },
+  rose: { bg: 'bg-rose-50', icon: 'text-rose-600', border: 'border-rose-100', hover: 'group-hover:bg-rose-100' },
+  cyan: { bg: 'bg-cyan-50', icon: 'text-cyan-600', border: 'border-cyan-100', hover: 'group-hover:bg-cyan-100' },
+  indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-600', border: 'border-indigo-100', hover: 'group-hover:bg-indigo-100' },
+  teal: { bg: 'bg-teal-50', icon: 'text-teal-600', border: 'border-teal-100', hover: 'group-hover:bg-teal-100' },
+}
+
+function FeatureCard({ icon: Icon, title, desc, color }: typeof features[0]) {
+  const colors = colorMap[color]
+  return (
+    <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+      <div className={`absolute inset-0 ${colors.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+      <div className="relative z-10">
+        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${colors.bg} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+          <Icon className={`w-6 h-6 ${colors.icon}`} />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <p className="text-gray-600 text-sm leading-relaxed">{desc}</p>
+      </div>
+    </div>
+  )
+}
+
+function ModuleCard({ name, items, icon }: typeof modules[0]) {
+  return (
+    <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
+      <div className="flex items-center gap-4 mb-6">
+        <span className="text-5xl font-bold bg-gradient-to-br from-blue-600 to-blue-700 bg-clip-text text-transparent opacity-20">{icon}</span>
+        <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
+      </div>
+      <ul className="space-y-3">
+        {items.map((item) => (
+          <li key={item} className="flex items-center gap-3 text-gray-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">N</span>
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-3">
+              <div className="relative w-11 h-11">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl rotate-3" />
+                <div className="relative w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/25">
+                  <span className="text-white font-bold text-lg">N</span>
+                </div>
               </div>
-              <span className="text-xl font-bold text-gray-900">NEXTERP</span>
+              <div>
+                <span className="text-2xl font-bold text-gray-900 tracking-tight">NEXTERP</span>
+                <span className="hidden sm:block text-xs text-gray-500 -mt-1">Enterprise Suite</span>
+              </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-gray-600 hover:text-blue-600 transition">Features</a>
-              <a href="#modules" className="text-gray-600 hover:text-blue-600 transition">Modules</a>
-              <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">Pricing</a>
-              <a href="#contact" className="text-gray-600 hover:text-blue-600 transition">Contact</a>
+            <div className="hidden lg:flex items-center gap-10">
+              <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Features</a>
+              <a href="#modules" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Modules</a>
+              <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Pricing</a>
+              <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Contact</a>
             </div>
 
-            <div className="hidden md:flex items-center gap-4">
-              <a href="/login" className="text-gray-600 hover:text-blue-600 font-medium">Login</a>
-              <a href="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition">
+            <div className="hidden lg:flex items-center gap-4">
+              <a href="/login" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Sign In</a>
+              <a href="/register" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-600/25 transition-all hover:-translate-y-0.5">
                 Get Started
               </a>
             </div>
 
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2">
-              {mobileMenuOpen ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors">
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </nav>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-4">
-            <a href="#features" className="block text-gray-600">Features</a>
-            <a href="#modules" className="block text-gray-600">Modules</a>
-            <a href="#pricing" className="block text-gray-600">Pricing</a>
-            <a href="/login" className="block text-gray-600">Login</a>
-            <a href="/register" className="block bg-blue-600 text-white text-center py-2 rounded-lg">Get Started</a>
+          <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-6 space-y-4">
+            <a href="#features" className="block text-gray-600 hover:text-blue-600 font-medium">Features</a>
+            <a href="#modules" className="block text-gray-600 hover:text-blue-600 font-medium">Modules</a>
+            <a href="#pricing" className="block text-gray-600 hover:text-blue-600 font-medium">Pricing</a>
+            <a href="/login" className="block text-gray-600 hover:text-blue-600 font-medium">Sign In</a>
+            <a href="/register" className="block bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-3 rounded-xl font-semibold">Get Started</a>
           </div>
         )}
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-blue-50 to-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-            </span>
-            Now with AI-Powered Analytics
-          </div>
+      <section className="relative pt-32 pb-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-white to-white" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-blue-100/30 via-indigo-100/20 to-transparent rounded-full blur-3xl" />
 
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Simplify Your Business,<br />
-            <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Maximize Profits</span>
-          </h1>
-
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-            The all-in-one ERP solution that streamlines your operations,
-            reduces costs, and gives you real-time insights into your business.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/demo" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-600/30">
-              Start Free Trial
-            </a>
-            <a href="/demo-video" className="bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-gray-300 transition flex items-center justify-center gap-2">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              Watch Demo
-            </a>
-          </div>
-
-          <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              No credit card required
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className={`inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-8 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <Sparkles className="w-4 h-4" />
+              <span>Powered by Modern Technology Stack</span>
             </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              14-day free trial
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              Cancel anytime
-            </div>
-          </div>
-        </div>
 
-        {/* Dashboard Preview */}
-        <div className="max-w-6xl mx-auto mt-16 px-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10 pointer-events-none h-20 bottom-0 top-auto"></div>
-            <div className="bg-gray-900 rounded-2xl p-2 shadow-2xl">
-              <div className="flex items-center gap-2 px-4 py-2">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <h1 className={`text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-8 leading-[1.1] tracking-tight transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              The Complete ERP<br />
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Solution</span>
+            </h1>
+
+            <p className={`text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              Streamline your business operations with an integrated suite of powerful modules designed for modern enterprises.
+            </p>
+
+            <div className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <a href="/register" className="group bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl hover:shadow-blue-600/25 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+              <a href="/demo" className="group bg-white text-gray-700 px-8 py-4 rounded-2xl font-semibold text-lg border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all flex items-center justify-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                  <Play className="w-4 h-4 ml-0.5" />
                 </div>
-                <div className="flex-1 bg-gray-800 rounded-lg px-4 py-1.5 text-gray-400 text-sm">
-                  app.nexterp.com/dashboard
+                Watch Demo
+              </a>
+            </div>
+
+            <div className={`mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sm text-gray-500 transition-all duration-700 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                  <Shield className="w-3 h-3 text-green-600" />
                 </div>
+                <span>No credit card required</span>
               </div>
-              <div className="bg-white rounded-xl p-6 min-h-[400px]">
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                  {['Revenue', 'Orders', 'Inventory', 'Employees'].map((item, i) => (
-                    <div key={item} className="bg-gray-50 rounded-xl p-4">
-                      <div className="text-gray-500 text-sm">{item}</div>
-                      <div className="text-2xl font-bold text-gray-900 mt-1">
-                        {['$124,500', '89', '1,234', '45'][i]}
-                      </div>
-                      <div className="text-green-600 text-sm mt-1">+{15 + i * 3}%</div>
-                    </div>
-                  ))}
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                  <Clock className="w-3 h-3 text-green-600" />
                 </div>
-                <div className="bg-gray-100 rounded-xl h-48 flex items-center justify-center text-gray-400">
-                  Dashboard Preview
+                <span>14-day free trial</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                  <Zap className="w-3 h-3 text-green-600" />
+                </div>
+                <span>Cancel anytime</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard Preview */}
+          <div className={`mt-20 transition-all duration-1000 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className="relative max-w-5xl mx-auto">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-violet-600/20 rounded-3xl blur-xl opacity-50" />
+              <div className="relative bg-gray-900 rounded-2xl p-3 shadow-2xl">
+                <div className="flex items-center gap-3 px-4 py-2.5">
+                  <div className="flex gap-2">
+                    <div className="w-3.5 h-3.5 rounded-full bg-red-500/80" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/80" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-green-500/80" />
+                  </div>
+                  <div className="flex-1 bg-gray-800 rounded-lg px-4 py-1.5 text-gray-400 text-sm flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    <span>app.nexterp.com/dashboard</span>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 min-h-[420px]">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {[
+                      { label: 'Total Revenue', value: '$124,500', change: '+18.2%', positive: true },
+                      { label: 'Active Orders', value: '89', change: '+12.5%', positive: true },
+                      { label: 'Inventory Items', value: '1,234', change: '+5.3%', positive: true },
+                      { label: 'Employees', value: '45', change: '+2.1%', positive: true },
+                    ].map((item) => (
+                      <div key={item.label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="text-gray-500 text-xs font-medium uppercase tracking-wide">{item.label}</div>
+                        <div className="text-2xl font-bold text-gray-900 mt-1">{item.value}</div>
+                        <div className={`text-xs font-medium mt-1 ${item.positive ? 'text-green-600' : 'text-red-600'}`}>{item.change}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-white rounded-xl h-56 border border-gray-100 shadow-sm flex items-center justify-center">
+                    <div className="text-center">
+                      <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                      <div className="text-gray-400 text-sm">Real-time Analytics Dashboard</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -173,21 +261,24 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 bg-white">
+      <section id="features" className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Everything You Need</h2>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Powerful Features</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-4">Everything You Need</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A complete suite of business tools designed to work together seamlessly
+              A complete suite of integrated business modules designed to work together seamlessly
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
-              <div key={feature.title} className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-blue-200 transition group">
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+            {features.map((feature, index) => (
+              <div
+                key={feature.title}
+                className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <FeatureCard {...feature} />
               </div>
             ))}
           </div>
@@ -195,27 +286,24 @@ export default function Home() {
       </section>
 
       {/* Modules Section */}
-      <section id="modules" className="py-20 px-4 bg-gray-50">
+      <section id="modules" className="py-24 px-4 bg-gradient-to-b from-gray-50/50 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">10+ Business Modules</h2>
-            <p className="text-xl text-gray-600">From core operations to enterprise-grade features</p>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Business Modules</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-4">10+ Integrated Modules</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              From core operations to enterprise-grade features, all seamlessly connected
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {modules.map((group) => (
-              <div key={group.name} className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{group.name}</h3>
-                <ul className="space-y-3">
-                  {group.items.map((item) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                      </svg>
-                      <span className="text-gray-600">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+            {modules.map((group, index) => (
+              <div
+                key={group.name}
+                className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <ModuleCard {...group} />
               </div>
             ))}
           </div>
@@ -223,59 +311,78 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-5xl font-bold mb-2">500+</div>
-              <div className="text-blue-200">Happy Clients</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2">10K+</div>
-              <div className="text-blue-200">Daily Users</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2">99.9%</div>
-              <div className="text-blue-200">Uptime</div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2">24/7</div>
-              <div className="text-blue-200">Support</div>
-            </div>
+      <section className="py-24 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+        </div>
+        <div className="max-w-7xl mx-auto relative">
+          <div className="grid md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon
+              return (
+                <div
+                  key={stat.label}
+                  className={`text-center transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
+                  <div className="text-blue-200 font-medium">{stat.label}</div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 bg-white">
+      <section id="pricing" className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-xl text-gray-600">Choose the plan that fits your business</p>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Pricing</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choose the plan that fits your business needs
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => (
-              <div key={plan.name} className={`rounded-2xl p-8 ${index === 1 ? 'bg-blue-600 text-white scale-105 shadow-xl' : 'bg-white border border-gray-200'}`}>
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+              <div
+                key={plan.name}
+                className={`relative rounded-3xl p-8 transition-all duration-500 ${plan.popular
+                  ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white scale-105 shadow-2xl shadow-blue-600/25'
+                  : 'bg-white border-2 border-gray-100 hover:border-gray-200 hover:shadow-xl'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-orange-400 text-gray-900 px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5" fill="currentColor" />
+                    Most Popular
+                  </div>
+                )}
+
+                <div className="text-center mb-8">
+                  <h3 className={`text-xl font-semibold mb-2 ${!plan.popular && 'text-gray-900'}`}>{plan.name}</h3>
                   <div className="text-4xl font-bold mb-1">{plan.price}</div>
-                  <div className={`text-sm ${index === 1 ? 'text-blue-200' : 'text-gray-500'}`}>{plan.users}</div>
+                  <div className={`text-sm ${plan.popular ? 'text-blue-200' : 'text-gray-500'}`}>{plan.users}</div>
                 </div>
-                <ul className="space-y-3 mb-8">
+
+                <ul className="space-y-4 mb-8">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
-                      <svg className={`w-5 h-5 ${index === 1 ? 'text-blue-200' : 'text-green-500'}`} fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                      </svg>
-                      <span className={`text-sm ${index === 1 ? 'text-blue-100' : 'text-gray-600'}`}>{feature}</span>
+                    <li key={feature} className="flex items-start gap-3">
+                      <CheckCircle2 className={`w-5 h-5 mt-0.5 flex-shrink-0 ${plan.popular ? 'text-blue-200' : 'text-green-500'}`} />
+                      <span className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-gray-600'}`}>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <a href="/register" className={`block text-center py-3 rounded-xl font-semibold transition ${
-                  index === 1
+
+                <a href="/register" className={`block text-center py-4 rounded-2xl font-semibold transition-all ${
+                  plan.popular
                     ? 'bg-white text-blue-600 hover:bg-gray-100'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
                 }`}>
                   Get Started
                 </a>
@@ -286,66 +393,89 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section id="contact" className="py-20 px-4 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Business?</h2>
-          <p className="text-xl text-gray-400 mb-8">
+      <section id="contact" className="py-24 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl" />
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center relative">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Transform Your Business?</h2>
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
             Join hundreds of companies that have streamlined their operations with NEXTERP
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/register" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition">
+            <a href="/register" className="group bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl hover:shadow-blue-600/25 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
               Start Free Trial
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
-            <a href="/contact" className="bg-gray-800 text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-700 transition border border-gray-700">
+            <a href="/contact" className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-white/20 transition-all border border-white/10 flex items-center justify-center gap-2">
               Contact Sales
+              <ChevronRight className="w-5 h-5" />
             </a>
           </div>
-          <div className="mt-8 text-gray-400">
-            Or email us at <a href="mailto:sales@nexterp.com" className="text-blue-400 hover:underline">sales@nexterp.com</a>
+
+          <div className="mt-12 text-gray-400">
+            <span>Have questions? </span>
+            <a href="mailto:sales@nexterp.com" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">sales@nexterp.com</a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-100 py-12 px-4">
+      <footer className="bg-gray-50 py-16 px-4 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">N</span>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold">N</span>
                 </div>
                 <span className="text-xl font-bold text-gray-900">NEXTERP</span>
               </div>
-              <p className="text-gray-600 text-sm">Enterprise Resource Planning for modern businesses.</p>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Enterprise Resource Planning for modern businesses. Streamline operations, reduce costs, and scale with confidence.
+              </p>
             </div>
+
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#features" className="hover:text-blue-600">Features</a></li>
-                <li><a href="#pricing" className="hover:text-blue-600">Pricing</a></li>
-                <li><a href="/demo" className="hover:text-blue-600">Demo</a></li>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a></li>
+                <li><a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a></li>
+                <li><a href="/demo" className="text-gray-600 hover:text-blue-600 transition-colors">Demo</a></li>
+                <li><a href="/changelog" className="text-gray-600 hover:text-blue-600 transition-colors">Changelog</a></li>
               </ul>
             </div>
+
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="/about" className="hover:text-blue-600">About</a></li>
-                <li><a href="/blog" className="hover:text-blue-600">Blog</a></li>
-                <li><a href="/careers" className="hover:text-blue-600">Careers</a></li>
+              <ul className="space-y-3 text-sm">
+                <li><a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">About Us</a></li>
+                <li><a href="/blog" className="text-gray-600 hover:text-blue-600 transition-colors">Blog</a></li>
+                <li><a href="/careers" className="text-gray-600 hover:text-blue-600 transition-colors">Careers</a></li>
+                <li><a href="/press" className="text-gray-600 hover:text-blue-600 transition-colors">Press</a></li>
               </ul>
             </div>
+
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="/docs" className="hover:text-blue-600">Documentation</a></li>
-                <li><a href="/help" className="hover:text-blue-600">Help Center</a></li>
-                <li><a href="/contact" className="hover:text-blue-600">Contact</a></li>
+              <ul className="space-y-3 text-sm">
+                <li><a href="/docs" className="text-gray-600 hover:text-blue-600 transition-colors">Documentation</a></li>
+                <li><a href="/help" className="text-gray-600 hover:text-blue-600 transition-colors">Help Center</a></li>
+                <li><a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a></li>
+                <li><a href="/status" className="text-gray-600 hover:text-blue-600 transition-colors">System Status</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 pt-8 text-center text-gray-500 text-sm">
-            <p>&copy; 2026 NEXTERP by SeVeN-. All rights reserved.</p>
+
+          <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+            <div>© 2026 NEXTERP by SeVeN-. All rights reserved.</div>
+            <div className="flex items-center gap-6">
+              <a href="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
+              <a href="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>
