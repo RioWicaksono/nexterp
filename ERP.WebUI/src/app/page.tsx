@@ -7,7 +7,7 @@ import {
   Building2, CheckCircle2, Play, ArrowRight, Sparkles, Shield, Zap,
   Globe, Clock, Headphones, ChevronRight, Menu, X, Star, Sun, Moon, Monitor
 } from 'lucide-react'
-import { useTheme } from '../providers/ThemeProvider'
+import { useTheme } from './providers/ThemeProvider'
 
 const features = [
   { icon: Package, title: 'Inventory Management', desc: 'Multi-warehouse stock tracking with batch/serial number support for complete traceability', color: 'blue' },
