@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, Check, X, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "../providers/ThemeProvider";
 import { useToast } from "../providers/ToastProvider";
-import { api } from "../lib/api";
+import { api } from "@/lib/api";
 
 const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
   <div className="flex items-center gap-2">

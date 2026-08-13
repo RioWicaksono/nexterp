@@ -5,7 +5,7 @@ import { AppShell } from "../components/AppShell";
 import { useState } from "react";
 import { useTheme } from "../providers/ThemeProvider";
 import { useToast } from "../providers/ToastProvider";
-import { api } from "../lib/api";
+import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
@@ -20,7 +20,7 @@ export default function SettingsPage() {
     router.push("/login");
   };
 
-  const handleThemeChange = (newTheme: string) => {
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
     setTheme(newTheme);
     success("Theme Changed", `Theme set to ${newTheme}`);
   };
