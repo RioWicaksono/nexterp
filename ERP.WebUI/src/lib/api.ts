@@ -179,6 +179,38 @@ class ApiClient {
       body: JSON.stringify(body),
     });
   }
+
+  async put<T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async patch<T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+    });
+  }
+
+  // Helper method to get paginated data
+  async getPaginated<T>(
+    endpoint: string,
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<ApiResponse<T & { page: number; pageSize: number; total: number }>> {
+    const url = `${this.baseUrl}${endpoint}${endpoint.includes('?') ? '&' : '?'}page=${page}&pageSize=${pageSize}`;
+    return this.request<T & { page: number; pageSize: number; total: number }>(url, {
+      method: 'GET',
+    });
+  }
 }
 
 export const api = new ApiClient();

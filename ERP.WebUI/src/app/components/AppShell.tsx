@@ -14,12 +14,19 @@ import {
   X,
   Bell,
   Search,
+  TrendingUp,
+  Building,
+  CheckCircle,
+  BarChart3,
+  Briefcase,
+  DollarSign,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/inventory", icon: Package, label: "Inventory" },
   { href: "/sales", icon: ShoppingCart, label: "Sales" },
+  { href: "/purchasing", icon: FileText, label: "Purchasing" },
   { href: "/hr", icon: Users, label: "HR" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -97,7 +104,7 @@ export function AppShell({ children }: AppShellProps) {
 
               {/* User Avatar */}
               <Link
-                href="/settings/profile"
+                href="/settings"
                 className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
@@ -192,18 +199,18 @@ function SidebarContent({
           {openMenus.includes("modules") && (
             <div className="pl-3 space-y-0.5">
               <SidebarItem href="/inventory" icon={Package} label="Inventory" active={pathname.startsWith("/inventory")} onClick={onNavigate} indent />
-              <SidebarItem href="/accounting" icon={FileText} label="Accounting" active={pathname.startsWith("/accounting")} onClick={onNavigate} indent />
+              <SidebarItem href="/accounting" icon={DollarSign} label="Accounting" active={pathname.startsWith("/accounting")} onClick={onNavigate} indent />
               <SidebarItem href="/sales" icon={ShoppingCart} label="Sales" active={pathname.startsWith("/sales")} onClick={onNavigate} indent />
-              <SidebarItem href="/purchasing" icon={ShoppingCart} label="Purchasing" active={pathname.startsWith("/purchasing")} onClick={onNavigate} indent />
+              <SidebarItem href="/purchasing" icon={FileText} label="Purchasing" active={pathname.startsWith("/purchasing")} onClick={onNavigate} indent />
               <SidebarItem href="/hr" icon={Users} label="HRM" active={pathname.startsWith("/hr")} onClick={onNavigate} indent />
-              <SidebarItem href="/projects" icon={FileText} label="Projects" active={pathname.startsWith("/projects")} onClick={onNavigate} indent />
+              <SidebarItem href="/projects" icon={Briefcase} label="Projects" active={pathname.startsWith("/projects")} onClick={onNavigate} indent />
             </div>
           )}
         </div>
 
-        <SidebarItem href="/analytics" icon={LayoutDashboard} label="Analytics" active={pathname.startsWith("/analytics")} onClick={onNavigate} />
-        <SidebarItem href="/assets" icon={Package} label="Assets" active={pathname.startsWith("/assets")} onClick={onNavigate} />
-        <SidebarItem href="/quality" icon={Settings} label="Quality" active={pathname.startsWith("/quality")} onClick={onNavigate} />
+        <SidebarItem href="/analytics" icon={BarChart3} label="Analytics" active={pathname.startsWith("/analytics")} onClick={onNavigate} />
+        <SidebarItem href="/assets" icon={Building} label="Assets" active={pathname.startsWith("/assets")} onClick={onNavigate} />
+        <SidebarItem href="/quality" icon={CheckCircle} label="Quality" active={pathname.startsWith("/quality")} onClick={onNavigate} />
       </nav>
 
       {/* Bottom */}
