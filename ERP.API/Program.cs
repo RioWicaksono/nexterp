@@ -169,8 +169,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<IApplicationDbContext>();
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // Configure CORS - Explicit origins only
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins")
-    .Get<string[]>() ?? new[] { "http://localhost:3000" };
+// Support both config file and environment variables
+var allowedOriginsConfig = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+var allowedOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
+var allowedOrigins = allowedOriginsConfig ??
+    (allowedOriginsEnv != null ? allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries) :
+    new[] { "http://localhost:3000" });
 
 builder.Services.AddCors(options =>
 {
