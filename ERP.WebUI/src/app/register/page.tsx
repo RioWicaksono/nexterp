@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, Check, X, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "../providers/ThemeProvider";
 import { useToast } from "../providers/ToastProvider";
+import { api } from "../lib/api";
 
 const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
   <div className="flex items-center gap-2">
@@ -26,11 +27,13 @@ export default function RegisterPage() {
   const { success, error } = useToast();
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    username: "",
     email: "",
-    company: "",
     password: "",
     confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    organizationName: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,20 +51,16 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Name must be at least 2 characters";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
     }
 
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Invalid email format";
-    }
-
-    if (!formData.company.trim()) {
-      newErrors.company = "Company name is required";
     }
 
     if (!formData.password) {
@@ -89,11 +88,27 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const response = await api.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        organizationName: formData.organizationName,
+      });
 
-    success("Account Created!", "Please check your email to verify your account.");
-    setTimeout(() => router.push("/login"), 1500);
+      if (response.success) {
+        success("Account Created!", "Please login with your credentials.");
+        setTimeout(() => router.push("/login"), 1500);
+      } else {
+        error("Registration Failed", response.error || "Please try again.");
+      }
+    } catch (err) {
+      error("Registration Failed", "Connection error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
@@ -140,34 +155,34 @@ export default function RegisterPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name */}
+              {/* Username */}
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Full Name
+                <label htmlFor="username" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Username <span className="text-red-500">*</span>
                 </label>
                 <input
-                  id="fullName"
+                  id="username"
                   type="text"
-                  value={formData.fullName}
-                  onChange={e => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                  placeholder="John Doe"
+                  value={formData.username}
+                  onChange={e => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                  placeholder="johndoe"
                   className={`
                     w-full px-4 py-3 rounded-xl border bg-white dark:bg-slate-900
                     text-slate-800 dark:text-white placeholder:text-slate-400
                     transition-all outline-none
-                    ${errors.fullName
+                    ${errors.username
                       ? "border-red-300 dark:border-red-700"
                       : "border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900"
                     }
                   `}
                 />
-                {errors.fullName && <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>}
+                {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
               </div>
 
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Work Email
+                  Work Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="email"
@@ -188,28 +203,49 @@ export default function RegisterPage() {
                 {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
               </div>
 
-              {/* Company */}
+              {/* First Name & Last Name */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    First Name
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="John"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder:text-slate-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Last Name
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Doe"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder:text-slate-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Organization Name */}
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Company Name
+                <label htmlFor="organizationName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Organization Name
                 </label>
                 <input
-                  id="company"
+                  id="organizationName"
                   type="text"
-                  value={formData.company}
-                  onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                  placeholder="Acme Corporation"
-                  className={`
-                    w-full px-4 py-3 rounded-xl border bg-white dark:bg-slate-900
-                    text-slate-800 dark:text-white placeholder:text-slate-400
-                    transition-all outline-none
-                    ${errors.company
-                      ? "border-red-300 dark:border-red-700"
-                      : "border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900"
-                    }
-                  `}
+                  value={formData.organizationName}
+                  onChange={e => setFormData(prev => ({ ...prev, organizationName: e.target.value }))}
+                  placeholder="My Company"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder:text-slate-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-all"
                 />
-                {errors.company && <p className="mt-1 text-sm text-red-500">{errors.company}</p>}
               </div>
 
               {/* Password */}

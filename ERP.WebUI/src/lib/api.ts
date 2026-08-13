@@ -5,6 +5,21 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  organizationName?: string;
+}
+
+export interface RegisterResponse {
+  userId: string;
+  organizationId: string;
+  message: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -111,6 +126,13 @@ class ApiClient {
     }
 
     return response;
+  }
+
+  async register(data: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
+    return this.request<RegisterResponse>('/api/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   logout(): void {
