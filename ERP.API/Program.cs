@@ -202,7 +202,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply database migrations and fix missing columns
+// Fix missing columns from legacy schema (skip migrations since tables already exist)
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
@@ -210,12 +210,9 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // Apply pending migrations
-        logger.LogInformation("Applying database migrations...");
-        await dbContext.Database.MigrateAsync();
-
-        // Fix missing columns from legacy schema
-        logger.LogInformation("Ensuring database schema is up to date...");
+        // Skip migrations - database already has tables
+        // Just add any missing columns
+        logger.LogInformation("Ensuring database schema has all required columns...");
         await dbContext.Database.ExecuteSqlRawAsync(@"
             ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""RefreshTokenHash"" text;
             ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""RefreshTokenExpiry"" timestamp with time zone;
@@ -224,7 +221,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogWarning(ex, "Migration or schema fix failed. Continuing anyway...");
+        logger.LogWarning(ex, "Schema fix failed. Continuing anyway...");
     }
 }
 
