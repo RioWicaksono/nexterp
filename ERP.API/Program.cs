@@ -218,10 +218,15 @@ using (var scope = app.Services.CreateScope())
             ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""RefreshTokenExpiry"" timestamp with time zone;
         ");
         logger.LogInformation("Database schema fixes applied successfully");
+
+        // Seed demo data if database is empty
+        logger.LogInformation("Seeding demo data if needed...");
+        await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+        logger.LogInformation("Demo data seeding completed");
     }
     catch (Exception ex)
     {
-        logger.LogWarning(ex, "Schema fix failed. Continuing anyway...");
+        logger.LogWarning(ex, "Schema fix or seeding failed. Continuing anyway...");
     }
 }
 
