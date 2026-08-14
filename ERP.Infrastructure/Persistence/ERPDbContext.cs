@@ -131,12 +131,9 @@ public class ERPDbContext : DbContext, IApplicationDbContext
 
 	private void ApplyGlobalFilters(ModelBuilder modelBuilder)
 	{
-		// Global filter for soft delete - applied to root BaseEntity (TPT hierarchy)
-		// Note: Tenant filter (OrganizationId) is NOT applied via query filter because
-		// TPT inheritance stores discriminator columns per entity (Employee_OrganizationId, etc.)
-		// instead of a shared OrganizationId on BaseEntity. Tenant isolation is handled by:
+		// Soft delete filters applied per entity in configurations
+		// Note: Tenant filter (OrganizationId) is handled by:
 		//   1. TenantEntityInterceptor: auto-sets OrganizationId on new entities
 		//   2. Explicit OrganizationId filters in each repository/service query
-		modelBuilder.Entity<Domain.Common.BaseEntity>().HasQueryFilter(e => !e.IsDeleted);
 	}
 }
