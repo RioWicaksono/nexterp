@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ERP.Infrastructure.Migrations
 {
     [DbContext(typeof(ERPDbContext))]
-    [Migration("20260814025125_Add_ModuleSystem")]
-    partial class Add_ModuleSystem
+    [Migration("20260814124159_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,215 @@ namespace ERP.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ERP.Domain.Accounting.Entities.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccountCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AllowDirectPosting")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Class")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("CostCenterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsBankAccount")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCashAccount")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("OpeningBalance")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("OpeningBalanceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Accounting.Entities.JournalEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EntryNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAutoEntry")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("PostingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferenceType")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ReversedEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("JournalEntries");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Accounting.Entities.JournalLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CostCenterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("CreditAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("DebitAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("JournalEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("JournalEntryId");
+
+                    b.ToTable("JournalLines");
+                });
 
             modelBuilder.Entity("ERP.Domain.Analytics.Entities.AuditLog", b =>
                 {
@@ -304,7 +513,67 @@ namespace ERP.Infrastructure.Migrations
                     b.ToTable("AssetMaintenances");
                 });
 
-            modelBuilder.Entity("ERP.Domain.Common.BaseEntity", b =>
+            modelBuilder.Entity("ERP.Domain.Base.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LicenseExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaxId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Organizations");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Base.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -316,13 +585,24 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSystemRole")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -332,11 +612,1999 @@ namespace ERP.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("Roles");
+                });
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
+            modelBuilder.Entity("ERP.Domain.Base.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.UseTphMappingStrategy();
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Base.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSuperAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastLoginIp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Base.UserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Configuration.OrganizationSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEncrypted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SettingKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SettingValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrganizationSettings");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Modules.LicenseTier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DefaultMaxUsers")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LicenseTiers");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Modules.ModuleDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Modules");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Modules.ModulePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModuleDefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleDefinitionId");
+
+                    b.ToTable("ModulePermissions");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Modules.OrganizationLicense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingEmail")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsAutoRenew")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("LicenseTierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicenseTierId");
+
+                    b.ToTable("OrganizationLicenses");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Common.Modules.OrganizationModule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ActivatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ModuleDefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleDefinitionId");
+
+                    b.ToTable("OrganizationModules");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Attendance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CheckInTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CheckOutTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan?>("ExpectedHours")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("OvertimeHours")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Attendances");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Department", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentDepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankAccountName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ConfirmationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmergencyContactRelation")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmployeeNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("EmploymentType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MaritalStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Mobile")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PersonalEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TaxId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("TerminationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("PositionId");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.EmployeeDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("IssueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IssuedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("VerifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmployeeDocuments");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HolidayType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOptional")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Holidays");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.LeaveBalance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("CarryForward")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("LeaveType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PendingDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("UsedDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeaveBalances");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.LeaveEntitlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AllocationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CarryForwardDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAutoAllocated")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LeaveType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PendingDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("UsedDays")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeaveEntitlements");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.LeaveRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("HalfDay")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("LeaveType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RejectedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.OvertimeRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApprovalNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ApprovedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("ApprovedHours")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval");
+
+                    b.Property<decimal>("Hours")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("OvertimeType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("WorkDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OvertimeRequests");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Payroll", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("BpjsKerjaDeduction")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("BpjsKesehatanDeduction")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("OngkirDeduction")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PPh21Deduction")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Thr")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalAllowances")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalDeductions")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Payrolls");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.PayrollDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ComponentCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ComponentName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEarning")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PayrollId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PayrollId");
+
+                    b.ToTable("PayrollDetails");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Position", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Grade")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("MaxSalary")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("MinSalary")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Shift", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan?>("BreakEnd")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan?>("BreakStart")
+                        .HasColumnType("interval");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsNightShift")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shifts");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Barcode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiryDays")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("Height")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("Length")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("MaximumStock")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("MinimumStock")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("ReorderLevel")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("StandardCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("StandardPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("TrackBatch")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("TrackSerials")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UnitOfMeasureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ValuationMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Weight")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("Width")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("StockItems");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockItemWarehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("AverageCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastStockIn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastStockOut")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("ReservedQuantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("StockItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StockItemId");
+
+                    b.ToTable("StockItemWarehouses");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BatchNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferenceType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SerialNumber")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("SourceWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("StockItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TransactionNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("StockTransactions");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Inventory.Entities.UnitOfMeasure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Abbreviation")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("BaseUomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("FactorToBase")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnitOfMeasures");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Inventory.Entities.Warehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AllowsNegativeStock")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Warehouses");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Projects.Entities.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActualEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ActualStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("Budget")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTemplate")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProjectManagerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Projects.Entities.ProjectTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("ActualHours")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("AssignedToId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("EstimatedHours")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("MilestoneId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Progress")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProjectTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ProjectTaskId");
+
+                    b.ToTable("ProjectTasks");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.PurchaseOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BillingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("ExpectedDeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PaymentTermId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ShippingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PurchaseOrders");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.PurchaseOrderLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("PurchaseOrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("ReceivedQuantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("StockItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("UnitOfMeasureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PurchaseOrderId");
+
+                    b.ToTable("PurchaseOrderLines");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BankAccountName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BillingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BillingCity")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BillingCountry")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BillingPostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("CreditLimit")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Mobile")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("OutstandingAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("PaymentTermId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShippingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShippingCity")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShippingCountry")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShippingPostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SupplierCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SupplierName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaxId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("ERP.Domain.Quality.Entities.Inspection", b =>
@@ -438,1818 +2706,11 @@ namespace ERP.Infrastructure.Migrations
                     b.ToTable("NonConformances");
                 });
 
-            modelBuilder.Entity("ERP.Domain.Accounting.Entities.Account", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("AccountCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("AllowDirectPosting")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("BankAccountNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Class")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("CostCenterId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsBankAccount")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsCashAccount")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("OpeningBalance")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("OpeningBalanceDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("AccountId")
-                                .HasColumnName("AccountId1");
-
-                            t.Property("CostCenterId")
-                                .HasColumnName("Account_CostCenterId");
-
-                            t.Property("Description")
-                                .HasColumnName("Account_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Account_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("Account_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Account_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("Account");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Accounting.Entities.JournalEntry", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<DateTime>("EntryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EntryNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsAutoEntry")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("PostingDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ReferenceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ReferenceNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReferenceType")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ReversedEntryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("OrganizationId")
-                                .HasColumnName("JournalEntry_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("JournalEntry");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Accounting.Entities.JournalLine", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CostCenterId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("CreditAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("DebitAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("JournalEntryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("PostedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Reference")
-                        .HasColumnType("text");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("JournalEntryId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("JournalLine_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("JournalLine_IsActive");
-                        });
-
-                    b.HasDiscriminator().HasValue("JournalLine");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Base.Organization", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LicenseExpiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TaxId")
-                        .HasColumnType("text");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Email")
-                                .HasColumnName("Organization_Email");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Organization_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("Organization_Name");
-
-                            t.Property("Phone")
-                                .HasColumnName("Organization_Phone");
-                        });
-
-                    b.HasDiscriminator().HasValue("Organization");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Base.Role", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSystemRole")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("IsActive")
-                                .HasColumnName("Role_IsActive");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Role_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("Role");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Base.RolePermission", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Permission")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("RoleId")
-                                .HasColumnName("RolePermission_RoleId");
-                        });
-
-                    b.HasDiscriminator().HasValue("RolePermission");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Base.User", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("FailedLoginAttempts")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsSuperAdmin")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastLoginIp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("LockedUntil")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RefreshTokenExpiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.HasDiscriminator().HasValue("User");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Base.UserRole", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasDiscriminator().HasValue("UserRole");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Configuration.OrganizationSetting", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsEncrypted")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("SettingKey")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SettingValue")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("OrganizationSetting_Description");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("OrganizationSetting_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("OrganizationSetting");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Modules.LicenseTier", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DefaultMaxUsers")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Code")
-                                .HasColumnName("LicenseTier_Code");
-
-                            t.Property("Description")
-                                .HasColumnName("LicenseTier_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("LicenseTier_IsActive");
-                        });
-
-                    b.HasDiscriminator().HasValue("LicenseTier");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Modules.ModuleDefinition", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<int>("Category")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPremium")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Category")
-                                .HasColumnName("ModuleDefinition_Category");
-
-                            t.Property("Code")
-                                .HasColumnName("ModuleDefinition_Code");
-
-                            t.Property("Description")
-                                .HasColumnName("ModuleDefinition_Description");
-
-                            t.Property("DisplayName")
-                                .HasColumnName("ModuleDefinition_DisplayName");
-
-                            t.Property("IsActive")
-                                .HasColumnName("ModuleDefinition_IsActive");
-
-                            t.Property("SortOrder")
-                                .HasColumnName("ModuleDefinition_SortOrder");
-                        });
-
-                    b.HasDiscriminator().HasValue("ModuleDefinition");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Modules.ModulePermission", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ModuleDefinitionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Permission")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasIndex("ModuleDefinitionId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("ModulePermission_Description");
-
-                            t.Property("Permission")
-                                .HasColumnName("ModulePermission_Permission");
-                        });
-
-                    b.HasDiscriminator().HasValue("ModulePermission");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Modules.OrganizationLicense", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("BillingEmail")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsAutoRenew")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("LicenseTierId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("MaxUsers")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasIndex("LicenseTierId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("OrganizationId")
-                                .HasColumnName("OrganizationLicense_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("OrganizationLicense");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Common.Modules.OrganizationModule", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<DateTime>("ActivatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ActivatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ModuleDefinitionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("ModuleDefinitionId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("ModuleDefinitionId")
-                                .HasColumnName("OrganizationModule_ModuleDefinitionId");
-
-                            t.Property("ModuleId")
-                                .HasColumnName("OrganizationModule_ModuleId");
-
-                            t.Property("Notes")
-                                .HasColumnName("OrganizationModule_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("OrganizationModule_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("OrganizationModule");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Attendance", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CheckInTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("CheckOutTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<TimeSpan?>("ExpectedHours")
-                        .HasColumnType("interval");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal?>("OvertimeHours")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Notes")
-                                .HasColumnName("Attendance_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Attendance_OrganizationId");
-
-                            t.Property("Status")
-                                .HasColumnName("Attendance_Status");
-                        });
-
-                    b.HasDiscriminator().HasValue("Attendance");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Department", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ParentDepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Code")
-                                .HasColumnName("Department_Code");
-
-                            t.Property("Description")
-                                .HasColumnName("Department_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Department_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("Department_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Department_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("Department");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Employee", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankAccountName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankAccountNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ConfirmationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("EmergencyContactName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EmergencyContactPhone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EmergencyContactRelation")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EmployeeNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("EmploymentType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("HireDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("MaritalStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Mobile")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PersonalEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("PositionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TaxId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("TerminationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("PositionId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Address")
-                                .HasColumnName("Employee_Address");
-
-                            t.Property("BankAccountNumber")
-                                .HasColumnName("Employee_BankAccountNumber");
-
-                            t.Property("BankName")
-                                .HasColumnName("Employee_BankName");
-
-                            t.Property("City")
-                                .HasColumnName("Employee_City");
-
-                            t.Property("Country")
-                                .HasColumnName("Employee_Country");
-
-                            t.Property("DepartmentId")
-                                .HasColumnName("Employee_DepartmentId");
-
-                            t.Property("FirstName")
-                                .HasColumnName("Employee_FirstName");
-
-                            t.Property("LastName")
-                                .HasColumnName("Employee_LastName");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Employee_OrganizationId");
-
-                            t.Property("Phone")
-                                .HasColumnName("Employee_Phone");
-
-                            t.Property("PostalCode")
-                                .HasColumnName("Employee_PostalCode");
-
-                            t.Property("Status")
-                                .HasColumnName("Employee_Status");
-
-                            t.Property("TaxId")
-                                .HasColumnName("Employee_TaxId");
-
-                            t.Property("UserId")
-                                .HasColumnName("Employee_UserId");
-                        });
-
-                    b.HasDiscriminator().HasValue("Employee");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.LeaveBalance", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<decimal>("CarryForward")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("LeaveType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("PendingDays")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("TotalDays")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("UsedDays")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("integer");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("EmployeeId")
-                                .HasColumnName("LeaveBalance_EmployeeId");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("LeaveBalance_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("LeaveBalance");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.LeaveRequest", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ApprovedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("HalfDay")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("LeaveType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RejectedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("RejectedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("RejectionReason")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("ApprovedAt")
-                                .HasColumnName("LeaveRequest_ApprovedAt");
-
-                            t.Property("ApprovedBy")
-                                .HasColumnName("LeaveRequest_ApprovedBy");
-
-                            t.Property("EmployeeId")
-                                .HasColumnName("LeaveRequest_EmployeeId");
-
-                            t.Property("EndDate")
-                                .HasColumnName("LeaveRequest_EndDate");
-
-                            t.Property("LeaveType")
-                                .HasColumnName("LeaveRequest_LeaveType");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("LeaveRequest_OrganizationId");
-
-                            t.Property("StartDate")
-                                .HasColumnName("LeaveRequest_StartDate");
-
-                            t.Property("Status")
-                                .HasColumnName("LeaveRequest_Status");
-                        });
-
-                    b.HasDiscriminator().HasValue("LeaveRequest");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Position", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Grade")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal?>("MaxSalary")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("MinSalary")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("DepartmentId")
-                                .HasColumnName("Position_DepartmentId");
-
-                            t.Property("Description")
-                                .HasColumnName("Position_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Position_IsActive");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Position_OrganizationId");
-
-                            t.Property("Title")
-                                .HasColumnName("Position_Title");
-                        });
-
-                    b.HasDiscriminator().HasValue("Position");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockItem", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Barcode")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiryDays")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal?>("Height")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal?>("Length")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("MaximumStock")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("MinimumStock")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("ReorderLevel")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("StandardCost")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("StandardPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("TrackBatch")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("TrackSerials")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("UnitOfMeasureId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ValuationMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Weight")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("Width")
-                        .HasColumnType("numeric");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Code")
-                                .HasColumnName("StockItem_Code");
-
-                            t.Property("Description")
-                                .HasColumnName("StockItem_Description");
-
-                            t.Property("IsActive")
-                                .HasColumnName("StockItem_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("StockItem_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("StockItem_OrganizationId");
-                        });
-
-                    b.HasDiscriminator().HasValue("StockItem");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockItemWarehouse", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<decimal>("AverageCost")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("LastStockIn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("LastStockOut")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("ReservedQuantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("StockItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("StockItemId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("WarehouseId")
-                                .HasColumnName("StockItemWarehouse_WarehouseId");
-                        });
-
-                    b.HasDiscriminator().HasValue("StockItemWarehouse");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Inventory.Entities.StockTransaction", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("BatchNumber")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid?>("ReferenceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ReferenceNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReferenceType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SerialNumber")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("SourceWarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("StockItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TransactionNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("UnitCost")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Notes")
-                                .HasColumnName("StockTransaction_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("StockTransaction_OrganizationId");
-
-                            t.Property("Quantity")
-                                .HasColumnName("StockTransaction_Quantity");
-
-                            t.Property("ReferenceId")
-                                .HasColumnName("StockTransaction_ReferenceId");
-
-                            t.Property("ReferenceNumber")
-                                .HasColumnName("StockTransaction_ReferenceNumber");
-
-                            t.Property("ReferenceType")
-                                .HasColumnName("StockTransaction_ReferenceType");
-
-                            t.Property("Status")
-                                .HasColumnName("StockTransaction_Status");
-
-                            t.Property("StockItemId")
-                                .HasColumnName("StockTransaction_StockItemId");
-
-                            t.Property("Type")
-                                .HasColumnName("StockTransaction_Type");
-
-                            t.Property("WarehouseId")
-                                .HasColumnName("StockTransaction_WarehouseId");
-                        });
-
-                    b.HasDiscriminator().HasValue("StockTransaction");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Inventory.Entities.UnitOfMeasure", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Abbreviation")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("BaseUomId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal?>("FactorToBase")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ShortName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("IsActive")
-                                .HasColumnName("UnitOfMeasure_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("UnitOfMeasure_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("UnitOfMeasure_OrganizationId");
-
-                            t.Property("Type")
-                                .HasColumnName("UnitOfMeasure_Type");
-                        });
-
-                    b.HasDiscriminator().HasValue("UnitOfMeasure");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Inventory.Entities.Warehouse", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("AllowsNegativeStock")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("City")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Address")
-                                .HasColumnName("Warehouse_Address");
-
-                            t.Property("City")
-                                .HasColumnName("Warehouse_City");
-
-                            t.Property("Code")
-                                .HasColumnName("Warehouse_Code");
-
-                            t.Property("Country")
-                                .HasColumnName("Warehouse_Country");
-
-                            t.Property("Description")
-                                .HasColumnName("Warehouse_Description");
-
-                            t.Property("Email")
-                                .HasColumnName("Warehouse_Email");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Warehouse_IsActive");
-
-                            t.Property("Name")
-                                .HasColumnName("Warehouse_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Warehouse_OrganizationId");
-
-                            t.Property("Phone")
-                                .HasColumnName("Warehouse_Phone");
-                        });
-
-                    b.HasDiscriminator().HasValue("Warehouse");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Projects.Entities.Project", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<DateTime?>("ActualEndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ActualStartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal?>("Budget")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsTemplate")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ProjectManagerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Code")
-                                .HasColumnName("Project_Code");
-
-                            t.Property("Description")
-                                .HasColumnName("Project_Description");
-
-                            t.Property("EndDate")
-                                .HasColumnName("Project_EndDate");
-
-                            t.Property("Name")
-                                .HasColumnName("Project_Name");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Project_OrganizationId");
-
-                            t.Property("StartDate")
-                                .HasColumnName("Project_StartDate");
-
-                            t.Property("Status")
-                                .HasColumnName("Project_Status");
-                        });
-
-                    b.HasDiscriminator().HasValue("Project");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Projects.Entities.ProjectTask", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<decimal>("ActualHours")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid?>("AssignedToId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("EstimatedHours")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid?>("MilestoneId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ParentTaskId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Progress")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ProjectTaskId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ProjectTaskId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("ProjectTask_Description");
-
-                            t.Property("DueDate")
-                                .HasColumnName("ProjectTask_DueDate");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("ProjectTask_OrganizationId");
-
-                            t.Property("ProjectId")
-                                .HasColumnName("ProjectTask_ProjectId");
-
-                            t.Property("StartDate")
-                                .HasColumnName("ProjectTask_StartDate");
-
-                            t.Property("Status")
-                                .HasColumnName("ProjectTask_Status");
-
-                            t.Property("Title")
-                                .HasColumnName("ProjectTask_Title");
-                        });
-
-                    b.HasDiscriminator().HasValue("ProjectTask");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.PurchaseOrder", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("BillingAddress")
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("ExpectedDeliveryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("PaymentTermId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ShippingAddress")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid?>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Notes")
-                                .HasColumnName("PurchaseOrder_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("PurchaseOrder_OrganizationId");
-
-                            t.Property("Status")
-                                .HasColumnName("PurchaseOrder_Status");
-
-                            t.Property("TotalAmount")
-                                .HasColumnName("PurchaseOrder_TotalAmount");
-
-                            t.Property("WarehouseId")
-                                .HasColumnName("PurchaseOrder_WarehouseId");
-                        });
-
-                    b.HasDiscriminator().HasValue("PurchaseOrder");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.PurchaseOrderLine", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("DiscountAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("DiscountPercent")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("LineTotal")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("PurchaseOrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("ReceivedQuantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("StockItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("TaxRate")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("UnitOfMeasureId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("numeric");
-
-                    b.HasIndex("PurchaseOrderId");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("PurchaseOrderLine_Description");
-
-                            t.Property("DiscountAmount")
-                                .HasColumnName("PurchaseOrderLine_DiscountAmount");
-
-                            t.Property("Quantity")
-                                .HasColumnName("PurchaseOrderLine_Quantity");
-
-                            t.Property("StockItemId")
-                                .HasColumnName("PurchaseOrderLine_StockItemId");
-
-                            t.Property("TaxAmount")
-                                .HasColumnName("PurchaseOrderLine_TaxAmount");
-
-                            t.Property("UnitOfMeasureId")
-                                .HasColumnName("PurchaseOrderLine_UnitOfMeasureId");
-                        });
-
-                    b.HasDiscriminator().HasValue("PurchaseOrderLine");
-                });
-
-            modelBuilder.Entity("ERP.Domain.Purchasing.Entities.Supplier", b =>
-                {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
-
-                    b.Property<string>("BankAccountName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankAccountNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BankName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingAddress")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingCity")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingCountry")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingPostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("CreditLimit")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Mobile")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("OutstandingAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid?>("PaymentTermId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShippingAddress")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShippingCity")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShippingCountry")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ShippingPostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SupplierCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TaxId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Website")
-                        .HasColumnType("text");
-
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("BankAccountName")
-                                .HasColumnName("Supplier_BankAccountName");
-
-                            t.Property("BankAccountNumber")
-                                .HasColumnName("Supplier_BankAccountNumber");
-
-                            t.Property("BankName")
-                                .HasColumnName("Supplier_BankName");
-
-                            t.Property("BillingAddress")
-                                .HasColumnName("Supplier_BillingAddress");
-
-                            t.Property("Email")
-                                .HasColumnName("Supplier_Email");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Supplier_IsActive");
-
-                            t.Property("Mobile")
-                                .HasColumnName("Supplier_Mobile");
-
-                            t.Property("Notes")
-                                .HasColumnName("Supplier_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Supplier_OrganizationId");
-
-                            t.Property("PaymentTermId")
-                                .HasColumnName("Supplier_PaymentTermId");
-
-                            t.Property("Phone")
-                                .HasColumnName("Supplier_Phone");
-
-                            t.Property("ShippingAddress")
-                                .HasColumnName("Supplier_ShippingAddress");
-
-                            t.Property("TaxId")
-                                .HasColumnName("Supplier_TaxId");
-
-                            t.Property("Type")
-                                .HasColumnName("Supplier_Type");
-                        });
-
-                    b.HasDiscriminator().HasValue("Supplier");
-                });
-
             modelBuilder.Entity("ERP.Domain.Sales.Entities.Customer", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BillingAddress")
                         .HasColumnType("text");
@@ -2261,6 +2722,12 @@ namespace ERP.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("BillingPostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<decimal?>("CreditLimit")
@@ -2278,6 +2745,9 @@ namespace ERP.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Mobile")
@@ -2319,81 +2789,37 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.Property<string>("Website")
                         .HasColumnType("text");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("BillingAddress")
-                                .HasColumnName("Customer_BillingAddress");
+                    b.HasKey("Id");
 
-                            t.Property("BillingCity")
-                                .HasColumnName("Customer_BillingCity");
-
-                            t.Property("BillingCountry")
-                                .HasColumnName("Customer_BillingCountry");
-
-                            t.Property("BillingPostalCode")
-                                .HasColumnName("Customer_BillingPostalCode");
-
-                            t.Property("CreditLimit")
-                                .HasColumnName("Customer_CreditLimit");
-
-                            t.Property("Email")
-                                .HasColumnName("Customer_Email");
-
-                            t.Property("IsActive")
-                                .HasColumnName("Customer_IsActive");
-
-                            t.Property("Mobile")
-                                .HasColumnName("Customer_Mobile");
-
-                            t.Property("Notes")
-                                .HasColumnName("Customer_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("Customer_OrganizationId");
-
-                            t.Property("OutstandingAmount")
-                                .HasColumnName("Customer_OutstandingAmount");
-
-                            t.Property("PaymentTermId")
-                                .HasColumnName("Customer_PaymentTermId");
-
-                            t.Property("Phone")
-                                .HasColumnName("Customer_Phone");
-
-                            t.Property("ShippingAddress")
-                                .HasColumnName("Customer_ShippingAddress");
-
-                            t.Property("ShippingCity")
-                                .HasColumnName("Customer_ShippingCity");
-
-                            t.Property("ShippingCountry")
-                                .HasColumnName("Customer_ShippingCountry");
-
-                            t.Property("ShippingPostalCode")
-                                .HasColumnName("Customer_ShippingPostalCode");
-
-                            t.Property("TaxId")
-                                .HasColumnName("Customer_TaxId");
-
-                            t.Property("Type")
-                                .HasColumnName("Customer_Type");
-
-                            t.Property("Website")
-                                .HasColumnName("Customer_Website");
-                        });
-
-                    b.HasDiscriminator().HasValue("Customer");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("ERP.Domain.Sales.Entities.PaymentDetail", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -2407,25 +2833,32 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<Guid>("SalesInvoiceId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("SalesInvoiceId");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Notes")
-                                .HasColumnName("PaymentDetail_Notes");
-
-                            t.Property("Reference")
-                                .HasColumnName("PaymentDetail_Reference");
-                        });
-
-                    b.HasDiscriminator().HasValue("PaymentDetail");
+                    b.ToTable("PaymentDetails");
                 });
 
             modelBuilder.Entity("ERP.Domain.Sales.Entities.SalesInvoice", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BillingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<Guid>("CustomerId")
@@ -2443,6 +2876,9 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -2492,54 +2928,28 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("BillingAddress")
-                                .HasColumnName("SalesInvoice_BillingAddress");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                            t.Property("DiscountAmount")
-                                .HasColumnName("SalesInvoice_DiscountAmount");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
-                            t.Property("DueDate")
-                                .HasColumnName("SalesInvoice_DueDate");
+                    b.HasKey("Id");
 
-                            t.Property("Notes")
-                                .HasColumnName("SalesInvoice_Notes");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("SalesInvoice_OrganizationId");
-
-                            t.Property("OutstandingAmount")
-                                .HasColumnName("SalesInvoice_OutstandingAmount");
-
-                            t.Property("PaymentTermId")
-                                .HasColumnName("SalesInvoice_PaymentTermId");
-
-                            t.Property("PriceListId")
-                                .HasColumnName("SalesInvoice_PriceListId");
-
-                            t.Property("Status")
-                                .HasColumnName("SalesInvoice_Status");
-
-                            t.Property("Subtotal")
-                                .HasColumnName("SalesInvoice_Subtotal");
-
-                            t.Property("TaxAmount")
-                                .HasColumnName("SalesInvoice_TaxAmount");
-
-                            t.Property("TotalAmount")
-                                .HasColumnName("SalesInvoice_TotalAmount");
-
-                            t.Property("Type")
-                                .HasColumnName("SalesInvoice_Type");
-                        });
-
-                    b.HasDiscriminator().HasValue("SalesInvoice");
+                    b.ToTable("SalesInvoices");
                 });
 
             modelBuilder.Entity("ERP.Domain.Sales.Entities.SalesInvoiceLine", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -2550,6 +2960,9 @@ namespace ERP.Infrastructure.Migrations
 
                     b.Property<decimal?>("DiscountPercent")
                         .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("LineTotal")
                         .HasColumnType("numeric");
@@ -2578,55 +2991,32 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("numeric");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("SalesInvoiceId");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("SalesInvoiceLine_Description");
-
-                            t.Property("DiscountAmount")
-                                .HasColumnName("SalesInvoiceLine_DiscountAmount");
-
-                            t.Property("DiscountPercent")
-                                .HasColumnName("SalesInvoiceLine_DiscountPercent");
-
-                            t.Property("LineTotal")
-                                .HasColumnName("SalesInvoiceLine_LineTotal");
-
-                            t.Property("Quantity")
-                                .HasColumnName("SalesInvoiceLine_Quantity");
-
-                            t.Property("SalesInvoiceId")
-                                .HasColumnName("SalesInvoiceLine_SalesInvoiceId");
-
-                            t.Property("StockItemId")
-                                .HasColumnName("SalesInvoiceLine_StockItemId");
-
-                            t.Property("Subtotal")
-                                .HasColumnName("SalesInvoiceLine_Subtotal");
-
-                            t.Property("TaxAmount")
-                                .HasColumnName("SalesInvoiceLine_TaxAmount");
-
-                            t.Property("TaxRate")
-                                .HasColumnName("SalesInvoiceLine_TaxRate");
-
-                            t.Property("UnitOfMeasureId")
-                                .HasColumnName("SalesInvoiceLine_UnitOfMeasureId");
-
-                            t.Property("UnitPrice")
-                                .HasColumnName("SalesInvoiceLine_UnitPrice");
-                        });
-
-                    b.HasDiscriminator().HasValue("SalesInvoiceLine");
+                    b.ToTable("SalesInvoiceLines");
                 });
 
             modelBuilder.Entity("ERP.Domain.Sales.Entities.SalesOrder", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BillingAddress")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<Guid>("CustomerId")
@@ -2637,6 +3027,9 @@ namespace ERP.Infrastructure.Migrations
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -2675,66 +3068,31 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("WarehouseId")
                         .HasColumnType("uuid");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("BillingAddress")
-                                .HasColumnName("SalesOrder_BillingAddress");
+                    b.HasKey("Id");
 
-                            t.Property("CustomerId")
-                                .HasColumnName("SalesOrder_CustomerId");
-
-                            t.Property("DiscountAmount")
-                                .HasColumnName("SalesOrder_DiscountAmount");
-
-                            t.Property("Notes")
-                                .HasColumnName("SalesOrder_Notes");
-
-                            t.Property("OrderDate")
-                                .HasColumnName("SalesOrder_OrderDate");
-
-                            t.Property("OrderNumber")
-                                .HasColumnName("SalesOrder_OrderNumber");
-
-                            t.Property("OrganizationId")
-                                .HasColumnName("SalesOrder_OrganizationId");
-
-                            t.Property("PaymentTermId")
-                                .HasColumnName("SalesOrder_PaymentTermId");
-
-                            t.Property("PriceListId")
-                                .HasColumnName("SalesOrder_PriceListId");
-
-                            t.Property("SalesPersonId")
-                                .HasColumnName("SalesOrder_SalesPersonId");
-
-                            t.Property("ShippingAddress")
-                                .HasColumnName("SalesOrder_ShippingAddress");
-
-                            t.Property("Status")
-                                .HasColumnName("SalesOrder_Status");
-
-                            t.Property("Subtotal")
-                                .HasColumnName("SalesOrder_Subtotal");
-
-                            t.Property("TaxAmount")
-                                .HasColumnName("SalesOrder_TaxAmount");
-
-                            t.Property("TotalAmount")
-                                .HasColumnName("SalesOrder_TotalAmount");
-
-                            t.Property("WarehouseId")
-                                .HasColumnName("SalesOrder_WarehouseId");
-                        });
-
-                    b.HasDiscriminator().HasValue("SalesOrder");
+                    b.ToTable("SalesOrders");
                 });
 
             modelBuilder.Entity("ERP.Domain.Sales.Entities.SalesOrderLine", b =>
                 {
-                    b.HasBaseType("ERP.Domain.Common.BaseEntity");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("DeliveredQuantity")
                         .HasColumnType("numeric");
@@ -2748,6 +3106,9 @@ namespace ERP.Infrastructure.Migrations
 
                     b.Property<decimal?>("DiscountPercent")
                         .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("LineTotal")
                         .HasColumnType("numeric");
@@ -2773,45 +3134,17 @@ namespace ERP.Infrastructure.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("numeric");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("SalesOrderId");
 
-                    b.ToTable("BaseEntity", t =>
-                        {
-                            t.Property("Description")
-                                .HasColumnName("SalesOrderLine_Description");
-
-                            t.Property("DiscountAmount")
-                                .HasColumnName("SalesOrderLine_DiscountAmount");
-
-                            t.Property("DiscountPercent")
-                                .HasColumnName("SalesOrderLine_DiscountPercent");
-
-                            t.Property("LineTotal")
-                                .HasColumnName("SalesOrderLine_LineTotal");
-
-                            t.Property("Quantity")
-                                .HasColumnName("SalesOrderLine_Quantity");
-
-                            t.Property("SalesOrderId")
-                                .HasColumnName("SalesOrderLine_SalesOrderId");
-
-                            t.Property("StockItemId")
-                                .HasColumnName("SalesOrderLine_StockItemId");
-
-                            t.Property("TaxAmount")
-                                .HasColumnName("SalesOrderLine_TaxAmount");
-
-                            t.Property("TaxRate")
-                                .HasColumnName("SalesOrderLine_TaxRate");
-
-                            t.Property("UnitOfMeasureId")
-                                .HasColumnName("SalesOrderLine_UnitOfMeasureId");
-
-                            t.Property("UnitPrice")
-                                .HasColumnName("SalesOrderLine_UnitPrice");
-                        });
-
-                    b.HasDiscriminator().HasValue("SalesOrderLine");
+                    b.ToTable("SalesOrderLines");
                 });
 
             modelBuilder.Entity("ERP.Domain.Accounting.Entities.Account", b =>
@@ -2928,6 +3261,15 @@ namespace ERP.Infrastructure.Migrations
                     b.HasOne("ERP.Domain.Hrm.Entities.Employee", null)
                         .WithMany("LeaveRequests")
                         .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.PayrollDetail", b =>
+                {
+                    b.HasOne("ERP.Domain.Hrm.Entities.Payroll", null)
+                        .WithMany("Details")
+                        .HasForeignKey("PayrollId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -3070,6 +3412,11 @@ namespace ERP.Infrastructure.Migrations
                     b.Navigation("Attendances");
 
                     b.Navigation("LeaveRequests");
+                });
+
+            modelBuilder.Entity("ERP.Domain.Hrm.Entities.Payroll", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("ERP.Domain.Hrm.Entities.Position", b =>

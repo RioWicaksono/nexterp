@@ -163,6 +163,9 @@ builder.Services.AddScoped<ERP.Application.Analytics.Services.INotificationServi
 builder.Services.AddScoped<IWorkflowService, ERP.Infrastructure.Services.WorkflowService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
+// Domain Services
+builder.Services.AddScoped<ERP.Domain.Hrm.Services.PayrollCalculationService>();
+
 // External Integration Services
 builder.Services.AddScoped<ITaxReportingService, ERP.Infrastructure.Services.Integrations.TaxReportingService>();
 builder.Services.AddScoped<IBankTransferService, ERP.Infrastructure.Services.Integrations.BankTransferService>();
