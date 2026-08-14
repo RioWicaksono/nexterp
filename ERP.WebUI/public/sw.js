@@ -1,122 +1,142 @@
 /// <reference lib="webworker" />
 
-declare const self: ServiceWorkerGlobalScope;
-
 const CACHE_NAME = 'nexterp-v1';
-const STATIC_ASSETS = [
+const OFFLINE_URL = '/offline';
+
+const PRECACHE_ASSETS = [
   '/',
-  '/login',
-  '/register',
-  '/dashboard',
+  '/offline',
   '/manifest.json',
-  '/favicon.svg',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
 ];
 
 // Install event - cache static assets
 self.addEventListener('install', (event: ExtendableEvent) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return cache.addAll(PRECACHE_ASSETS);
     })
   );
-  self.skipWaiting();
+  (self as unknown as ServiceWorkerGlobalScope).skipWaiting();
 });
 
-// Activate event - clean old caches
+// Activate event - clean up old caches
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+        keys
+          .filter((key) => key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
       );
     })
   );
-  self.clients.claim();
+  (self as unknown as ServiceWorkerGlobalScope).clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event: FetchEvent) => {
   const { request } = event;
-  const url = new URL(request.url);
 
   // Skip non-GET requests
-  if (request.method !== 'GET') {
+  if (request.method !== 'GET') return;
+
+  // Skip API requests (always go to network)
+  if (request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match('/offline');
+      })
+    );
     return;
   }
 
-  // Skip API requests
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(request));
+  // For page navigations, use network-first strategy
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone and cache the response
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request).then((cached) => {
+            return cached || caches.match(OFFLINE_URL);
+          });
+        })
+    );
     return;
   }
 
-  // Skip external requests
-  if (url.origin !== self.location.origin) {
-    return;
-  }
+  // For other assets, use cache-first strategy
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        // Return cached, but also update cache in background
+        fetch(request).then((response) => {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, response);
+          });
+        });
+        return cached;
+      }
 
-  event.respondWith(cacheFirst(request));
+      return fetch(request).then((response) => {
+        // Cache the response
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseClone);
+        });
+        return response;
+      });
+    })
+  );
 });
 
-// Cache-first strategy
-async function cacheFirst(request: Request): Promise<Response> {
-  const cached = await caches.match(request);
-  if (cached) {
-    return cached;
-  }
-
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      const cached = await caches.match('/');
-      if (cached) return cached;
-    }
-    return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
-  }
-}
-
-// Network-first strategy for API
-async function networkFirst(request: Request): Promise<Response> {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    return new Response(JSON.stringify({ error: 'Offline' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-}
-
-// Background sync for offline actions
+// Background sync for offline attendance submissions
 self.addEventListener('sync', (event: SyncEvent) => {
-  if (event.tag === 'sync-data') {
-    event.waitUntil(syncOfflineData());
+  if (event.tag === 'attendance-sync') {
+    event.waitUntil(syncAttendance());
   }
 });
 
-async function syncOfflineData(): Promise<void> {
-  // Get pending offline actions from IndexedDB
-  // This would sync when back online
-  console.log('Syncing offline data...');
+async function syncAttendance(): Promise<void> {
+  try {
+    // Get pending attendance records from IndexedDB
+    const pendingRecords = await getPendingAttendanceRecords();
+
+    for (const record of pendingRecords) {
+      try {
+        await fetch('/api/v1/mobile/attendance/' + record.type, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record.data),
+        });
+        await removePendingRecord(record.id);
+      } catch (error) {
+        console.error('Failed to sync attendance record:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Attendance sync failed:', error);
+  }
 }
 
-// Push notifications
+async function getPendingAttendanceRecords(): Promise<Array<{ id: string; type: string; data: unknown }>> {
+  // Placeholder - implement with IndexedDB
+  return [];
+}
+
+async function removePendingRecord(id: string): Promise<void> {
+  // Placeholder - implement with IndexedDB
+}
+
+// Push notification handling
 self.addEventListener('push', (event: PushEvent) => {
   if (!event.data) return;
 
@@ -124,27 +144,56 @@ self.addEventListener('push', (event: PushEvent) => {
   const options: NotificationOptions = {
     body: data.body,
     icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || '/',
-    },
-    actions: [
-      { action: 'open', title: 'Open' },
-      { action: 'close', title: 'Close' },
-    ],
+    badge: '/icons/badge.png',
+    vibrate: [200, 100, 200],
+    tag: data.tag || 'default',
+    data: data.url,
+    actions: data.actions || [],
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    (self as unknown as ServiceWorkerGlobalScope).registration.showNotification(
+      data.title,
+      options
+    )
+  );
 });
 
+// Notification click handling
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
 
-  if (event.action === 'close') return;
+  const url = event.notification.data || '/';
 
-  const url = event.notification.data?.url || '/';
-  event.waitUntil(self.clients.openWindow(url));
+  event.waitUntil(
+    (self as unknown as ServiceWorkerGlobalScope).clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        // Focus existing window if available
+        for (const client of clients) {
+          if (client.url === url && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Otherwise open new window
+        return (self as unknown as ServiceWorkerGlobalScope).clients.openWindow(url);
+      })
+  );
 });
+
+// Type declarations for service worker events
+declare const self: ServiceWorkerGlobalScope;
+
+interface SyncEvent extends ExtendableEvent {
+  tag: string;
+}
+
+interface PushEvent extends ExtendableEvent {
+  data: PushMessageData | null;
+}
+
+interface NotificationEvent extends ExtendableEvent {
+  notification: Notification;
+}
 
 export {};

@@ -10,7 +10,7 @@
 
 **Full-featured ERP system with Clean Architecture (.NET 8 + Next.js 14)**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Architecture](#-architecture) • [Security](#-security)
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Documentation](#-documentation) • [Security](#-security)
 
 </div>
 
@@ -20,30 +20,52 @@
 
 ### 10 Complete Business Modules
 
-| Module | Description |
-|--------|-------------|
-| 📦 **Inventory** | Stock management, multi-warehouse, batch/serial tracking |
-| 💰 **Accounting** | Chart of accounts, double-entry, financial reports |
-| 🛒 **Sales** | Customers, orders, invoices, payments |
-| 📝 **Purchasing** | Suppliers, purchase orders, goods receipt |
-| 👥 **HRM** | Employees, departments, attendance, leave |
-| 📊 **Projects** | Project planning, task tracking, Gantt charts |
-| 🏢 **Assets** | Fixed assets, depreciation, maintenance |
-| ✅ **Quality** | Inspections, NCR management, CAPA |
-| 📊 **Analytics** | Real-time dashboards, KPI tracking |
+| Module | Code | Description |
+|--------|------|-------------|
+| 📦 **Inventory** | INVENTORY | Stock management, multi-warehouse, batch/serial tracking |
+| 💰 **Accounting** | ACCOUNTING | Chart of accounts, double-entry, financial reports |
+| 🛒 **Sales** | SALES | Customers, quotes, orders, invoices, payments |
+| 📝 **Purchasing** | PURCHASING | Suppliers, purchase orders, goods receipt |
+| 👥 **HRM** | HRM | Employees, departments, attendance, leave, overtime |
+| 📊 **Projects** | PROJECTS | Project planning, task tracking, Gantt charts |
+| 🏢 **Assets** | ASSETS | Fixed assets, depreciation, maintenance |
+| ✅ **Quality** | QUALITY | Inspections, NCR management, CAPA |
+| 📊 **Analytics** | ANALYTICS | Real-time dashboards, KPI tracking |
+
+### Module-Based Licensing
+
+| Tier | Modules | Target |
+|------|---------|--------|
+| **STARTER** | Sales, Inventory | Small businesses (5-20 employees) |
+| **PROFESSIONAL** | + HRM, Purchasing | Growing companies (20-100 employees) |
+| **ENTERPRISE** | + All modules | Full-suite ERP (100-500 employees) |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Backend** | .NET 8, C# 12, ASP.NET Core Web API |
+| **Frontend** | Next.js 14, React 18, TypeScript, TailwindCSS |
+| **Database** | PostgreSQL 16, Entity Framework Core 8 |
+| **Cache** | Redis 7 |
+| **Architecture** | Clean Architecture, CQRS via MediatR, DDD |
+| **Container** | Docker, Docker Compose |
+| **Auth** | JWT Bearer, BCrypt |
+| **Logging** | Serilog (structured JSON) |
+| **Testing** | xUnit, Jest, Playwright |
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - .NET 8 SDK
 - Docker Desktop
 - Node.js 18+
 
 ### 1. Clone & Setup
-
 ```bash
 git clone <repository-url>
 cd nexterp
@@ -53,9 +75,7 @@ cp .env.example .env
 ```
 
 ### 2. Configure Environment
-
-Edit `.env` file with your secure values:
-
+Edit `.env` file:
 ```env
 POSTGRES_PASSWORD=YourSecurePassword123!
 REDIS_PASSWORD=YourSecureRedisPassword123!
@@ -63,7 +83,6 @@ JWT_SECRET=YourSecureJwtSecretMinimum32Chars!
 ```
 
 ### 3. Start with Docker
-
 ```bash
 # Start all services
 docker-compose up -d
@@ -72,34 +91,24 @@ docker-compose up -d
 docker-compose logs -f api
 ```
 
-### 4. Access Application
-
-| Service | URL |
-|---------|-----|
-| Frontend | <http://localhost:3000> |
-| API/Swagger | <http://localhost:5000/swagger> |
-| pgAdmin | <http://localhost:5050> |
-
-### 5. Local Development
-
+### 4. Local Development
 ```bash
 # Backend
+dotnet build ERP.slnx
 dotnet run --project ERP.API
 
 # Frontend (separate terminal)
 cd ERP.WebUI && npm install && npm run dev
 ```
 
----
+### 5. Access Application
 
-## 📚 Documentation
-
-| Document | Purpose |
-|----------|---------|
-| `README_DEV.md` | Developer setup, architecture, API reference |
-| `README_CLIENT.md` | Feature overview, benefits, pricing |
-| `docs/API_DOCUMENTATION.md` | Complete API reference |
-| `CLAUDE.md` | Claude Code project instructions |
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| API/Swagger | http://localhost:5000/swagger |
+| pgAdmin | http://localhost:5050 |
+| Redis Commander | http://localhost:8081 |
 
 ---
 
@@ -117,83 +126,163 @@ cd ERP.WebUI && npm install && npm run dev
 ┌─────────────────────────────────────────────────────────┐
 │  APPLICATION LAYER                                      │
 │  MediatR Commands/Queries │ FluentValidation │ DTOs      │
+│  Behaviors: License Validation, Authorization             │
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│  DOMAIN LAYER                                            │
-│  Entities │ Value Objects │ Domain Events │ Enums         │
-│  ⚠️ NO external dependencies - pure business logic       │
+│  DOMAIN LAYER                                           │
+│  Entities │ Value Objects │ Domain Events │ Enums        │
+│  ⚠️ NO external dependencies - pure business logic        │
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────┐
 │  INFRASTRUCTURE LAYER                                   │
-│  Entity Framework Core │ JWT Services │ Redis Cache     │
+│  Entity Framework Core │ JWT Services │ Redis Cache      │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| Backend | .NET 8, C# 12, MediatR (CQRS) |
-| Database | PostgreSQL 16, Entity Framework Core 8 |
-| Frontend | Next.js 14, TypeScript 5, TailwindCSS |
-| Cache | Redis 7 |
-| Container | Docker, Docker Compose |
-| Auth | JWT Bearer, BCrypt |
-| Logging | Serilog (structured JSON) |
-| Testing | xUnit, Jest, Playwright |
+### Key Patterns Implemented
+- **CQRS Pattern** via MediatR (Commands & Queries are separate)
+- **Repository Pattern** for data access abstraction
+- **Domain Events** for decoupled communication
+- **FluentValidation** for input validation
+- **Module-Based Licensing** with `[RequiresModule]` attribute
+- **Multi-Tenant Isolation** via ITenantEntity and global query filters
+- **Rate Limiting** (Redis-backed sliding window)
+- **Tamper-Proof License System** (hash + HMAC verification)
 
 ---
 
-## 🔒 Security
+## 📁 Project Structure
+
+```
+nexterp/
+├── ERP.API/                    # REST API
+│   ├── Controllers/           # API Controllers
+│   ├── Controllers/Admin/     # Admin endpoints
+│   ├── Filters/               # License validation filters
+│   └── Program.cs             # App configuration
+├── ERP.Application/           # Use Cases
+│   ├── [Domain]/              # Per-module Commands, Queries, DTOs
+│   └── Common/
+│       ├── Behaviors/          # MediatR pipeline behaviors
+│       ├── Licensing/          # License & integrity services
+│       └── Modules/           # Module configuration
+├── ERP.Domain/                 # Domain Entities & Logic
+├── ERP.Infrastructure/        # Data Access & Services
+├── ERP.WebUI/                 # Next.js Frontend
+├── ERP.Domain.UnitTests/       # Domain unit tests
+├── ERP.Application.UnitTests/  # Application unit tests
+├── ERP.API.ContractTests/     # API contract tests
+├── docker/                     # Docker configurations
+├── scripts/                   # Utility scripts
+├── docs/                      # Additional documentation
+├── docker-compose.yml          # Container orchestration
+└── README.md                  # This file
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose |
+|----------|---------|
+| `README.md` | This file - Overview & Technical guide |
+| `README_DEV.md` | Developer setup, API reference, architecture |
+| `README_CLIENT.md` | Feature overview, benefits, pricing (for clients) |
+| `docs/` | ADRs, testing strategy, deployment guides |
+
+---
+
+## 🔐 Security
 
 ### Implemented Security Features
 
 - ✅ **JWT Authentication** with httpOnly cookies
 - ✅ **Role-Based Access Control** (RBAC)
+- ✅ **Module-Based Licensing** with 3 tiers (Starter/Professional/Enterprise)
+- ✅ **Tamper-Proof License System**:
+  - MediatR Pipeline validation
+  - Controller-level filters (`[RequireLicense]`)
+  - SHA256 hash + HMAC signature verification
+  - Audit logging for all validation attempts
 - ✅ **Multi-Tenancy** with organization isolation
 - ✅ **Input Validation** with FluentValidation
 - ✅ **SQL Injection Prevention** via EF Core parameterized queries
-- ✅ **XSS Protection** with proper output encoding
-- ✅ **CORS** with explicit origin whitelist
 - ✅ **Secure Password Hashing** with BCrypt (cost factor 12)
-- ✅ **HSTS Headers** for production
-- ✅ **Docker Security** hardening (non-root, read-only, resource limits)
+- ✅ **Rate Limiting** (Redis-backed sliding window)
+- ✅ **Timing-Safe Token Comparison** for refresh tokens
+- ✅ **CORS** with explicit origin whitelist
+- ✅ **Docker Security** hardening (non-root, read-only)
 
----
-
-## 📂 Project Structure
+### License Protection Layers
 
 ```
-nexterp/
-├── ERP.API/              # REST API (Controllers, Middleware)
-├── ERP.Application/       # Use Cases (Commands, Queries, DTOs)
-├── ERP.Domain/           # Domain Entities & Business Logic
-├── ERP.Infrastructure/   # Data Access (EF Core, Services)
-├── ERP.WebUI/            # Next.js Frontend
-├── docker/               # Docker configurations
-├── docs/                 # Additional documentation
-├── docker-compose.yml     # Container orchestration
-└── .env.example          # Environment template
+Frontend → Controller Filter → MediatR Pipeline → Service Layer → Database
+   │              │                  │                  │            │
+   │         [RequireLicense]  LicenseValidation    Hash Check   License Table
+   │              │                  Behavior            │            │
+   └── Menu      └── 403 Forbidden ──→ Exception ───→ Audit Log
 ```
 
 ---
 
 ## 🧪 Testing
 
+### Backend Tests (xUnit)
 ```bash
 # Run all tests
 dotnet test
 
 # Run with coverage
 dotnet test --collect:"XPlat Code Coverage"
+```
 
-# Frontend tests
+### Frontend Tests (Jest + Playwright)
+```bash
 cd ERP.WebUI && npm test
 ```
+
+### Test Coverage
+- **Domain Unit Tests**: Entity behavior, value objects, invariants
+- **Application Unit Tests**: Validators, handlers, license validation (597 tests total)
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+```bash
+# Database
+POSTGRES_PASSWORD=secure_password_here
+
+# Redis
+REDIS_PASSWORD=secure_redis_password
+
+# JWT
+JWT_SECRET=your_jwt_secret_minimum_32_characters
+
+# ASP.NET Core
+ASPNETCORE_ENVIRONMENT=Production
+```
+
+### Database
+- **Provider:** PostgreSQL 16
+- **ORM:** Entity Framework Core 8
+- **Connection:** `Host=localhost;Port=5432;Database=erp_db`
+
+### Docker Services
+| Service | Port | Description |
+|---------|------|-------------|
+| postgres | 5432 | PostgreSQL database |
+| redis | 6379 | Redis cache |
+| api | 5000/5001 | .NET API |
+| frontend | 3000 | Next.js app |
+| nginx | 80/443 | Reverse proxy (prod) |
+| pgadmin | 5050 | Database GUI (dev) |
+| redis-commander | 8081 | Redis GUI (dev) |
 
 ---
 
@@ -203,10 +292,19 @@ MIT License - Free for personal and commercial use.
 
 ---
 
+## 👤 Author
+
+**Built by Rio Wicaksono** - Full-stack developer specializing in enterprise systems
+
+- 📧 Email: riowicaksono.work@gmail.com
+- 💼 LinkedIn: [linkedin.com/in/riowicaksono](https://linkedin.com/in/riowicaksono)
+
+---
+
 <div align="center">
 
-**Built with ❤️ by [Care Technologies](https://caretechnologies.com)**
-
 *Transforming businesses with powerful, intuitive software*
+
+**Version 3.0.0** • Last Updated: 2026-08-14
 
 </div>

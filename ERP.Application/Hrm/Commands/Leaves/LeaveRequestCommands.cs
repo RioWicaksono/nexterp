@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Base;
+using ERP.Application.Common.Behaviors;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Hrm.DTOs;
 using ERP.Domain.Hrm.Entities;
@@ -12,6 +13,7 @@ namespace ERP.Application.Hrm.Commands.Leaves;
 /// <summary>
 /// Command to create a leave request
 /// </summary>
+[RequiresModule("HRM")]
 public class CreateLeaveRequestCommand : ICommand<Guid>
 {
     public Guid EmployeeId { get; set; }
@@ -128,6 +130,7 @@ public class CreateLeaveRequestCommandHandler : IRequestHandler<CreateLeaveReque
 /// <summary>
 /// Command to approve/reject leave request
 /// </summary>
+[RequiresModule("HRM")]
 public class ApproveLeaveRequestCommand : ICommand
 {
     public Guid LeaveRequestId { get; set; }

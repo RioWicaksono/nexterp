@@ -11,6 +11,8 @@ using ERP.Domain.Projects.Entities;
 using ERP.Domain.Analytics.Entities;
 using ERP.Domain.Assets.Entities;
 using ERP.Domain.Quality.Entities;
+using ERP.Domain.Common.Modules;
+using ERP.Domain.Common.Configuration;
 
 namespace ERP.Application.Common.Interfaces;
 
@@ -62,6 +64,13 @@ public interface IApplicationDbContext
     DbSet<Attendance> Attendances { get; }
     DbSet<LeaveRequest> LeaveRequests { get; }
     DbSet<LeaveBalance> LeaveBalances { get; }
+    DbSet<LeaveEntitlement> LeaveEntitlements { get; }
+    DbSet<OvertimeRequest> OvertimeRequests { get; }
+    DbSet<EmployeeDocument> EmployeeDocuments { get; }
+    DbSet<Shift> Shifts { get; }
+    DbSet<Holiday> Holidays { get; }
+    DbSet<Payroll> Payrolls { get; }
+    DbSet<PayrollDetail> PayrollDetails { get; }
 
     // Project Management entities
     DbSet<Project> Projects { get; }
@@ -81,4 +90,14 @@ public interface IApplicationDbContext
     // Quality Management entities
     DbSet<Inspection> Inspections { get; }
     DbSet<NonConformance> NonConformances { get; }
+
+    // Module & Licensing entities
+    DbSet<ModuleDefinition> Modules { get; }
+    DbSet<OrganizationModule> OrganizationModules { get; }
+    DbSet<LicenseTier> LicenseTiers { get; }
+    DbSet<OrganizationLicense> OrganizationLicenses { get; }
+    DbSet<ModulePermission> ModulePermissions { get; }
+
+    // Organization Settings
+    DbSet<OrganizationSetting> OrganizationSettings { get; }
 }

@@ -1,42 +1,45 @@
 {
-  "name": "NEXTERP - Enterprise Resource Planning",
+  "name": "NEXTERP - ERP System",
   "short_name": "NEXTERP",
-  "description": "All-in-one ERP solution for modern enterprises",
+  "description": "Enterprise Resource Planning System for Indonesian SMB Companies",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#4a90d9",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id-ID",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192x192.png",
@@ -48,7 +51,7 @@
       "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
@@ -57,37 +60,35 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity"],
   "screenshots": [
     {
       "src": "/screenshots/dashboard.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard Overview"
-    },
-    {
-      "src": "/screenshots/mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile View"
+      "label": "Dashboard"
     }
   ],
   "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
-      "description": "View dashboard overview",
+      "description": "Open dashboard",
       "url": "/dashboard",
       "icons": [{ "src": "/icons/shortcut-dashboard.png", "sizes": "96x96" }]
     },
     {
-      "name": "Inventory",
-      "short_name": "Inventory",
-      "description": "Manage inventory",
-      "url": "/inventory",
-      "icons": [{ "src": "/icons/shortcut-inventory.png", "sizes": "96x96" }]
+      "name": "Attendance",
+      "short_name": "Attendance",
+      "description": "Clock in/out",
+      "url": "/attendance",
+      "icons": [{ "src": "/icons/shortcut-attendance.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Leave Request",
+      "short_name": "Leave",
+      "description": "Request leave",
+      "url": "/leave/request",
+      "icons": [{ "src": "/icons/shortcut-leave.png", "sizes": "96x96" }]
     }
   ],
   "related_applications": [],

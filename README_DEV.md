@@ -503,14 +503,14 @@ git push origin feature/your-feature
 ## 📞 Support
 
 - **Issues**: GitHub Issues
-- **Email**: dev-support@caretechnologies.com
+- **Email**: riowicaksono.work@gmail.com
 
 ---
 
 <div align="center">
 
-**Built with ❤️ using Clean Architecture**
+**Built using Clean Architecture**
 
-*© 2026 NEXTERP by Care Technologies*
+*© 2026 NEXTERP by SeVeN-*
 
 </div>

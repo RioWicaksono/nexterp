@@ -68,26 +68,6 @@ docker-compose.override.yml
 *.csx
 *.slnx
 
-# Database
-*.mdf
-*.ldf
-*.dbmdl
-*.db
-!*.db.example
-
-# Backup files
-*.bak
-*.backup
-
-# Shippable
-.config/
-
-# Misc
-*.cache
-*.tmp
-*.temp
-CLAUDE.md
-
 # Claude Code workflows
 .claude/workflows/*.yaml
 !.claude/workflows/README.md

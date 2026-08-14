@@ -1,11 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.Application.Analytics.Commands;
 using ERP.API.Controllers.Base;
 
 namespace ERP.API.Controllers.Analytics;
 
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]

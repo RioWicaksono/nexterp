@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Hrm.Commands.Attendances;
 using ERP.Application.Hrm.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Hrm;
 /// <summary>
 /// Attendance management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/attendances")]
 [Authorize]

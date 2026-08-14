@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Projects.Commands;
 using ERP.Application.Projects.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Projects;
 /// <summary>
 /// Project management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/projects")]
 [Authorize]
@@ -121,6 +124,7 @@ public class ProjectsController : BaseApiController
 /// <summary>
 /// Project Tasks endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/project-tasks")]
 [Authorize]

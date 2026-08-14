@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Base.Commands.Users;
 using ERP.Application.Base.DTOs;
@@ -12,6 +14,7 @@ namespace ERP.API.Controllers.Users;
 /// <summary>
 /// User management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize]

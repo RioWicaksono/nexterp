@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Serilog;
+using ERP.Application.Common.Behaviors;
 
 namespace ERP.API.Middleware;
 
@@ -115,6 +116,17 @@ public class GlobalExceptionHandlerMiddleware
                 )
             ),
 
+            // Module access denied
+            ModuleAccessDeniedException moduleAccessEx => (
+                HttpStatusCode.Forbidden,
+                new ErrorResponse(
+                    Success: false,
+                    Error: moduleAccessEx.Message,
+                    ModuleCode: moduleAccessEx.ModuleCode,
+                    CorrelationId: correlationId
+                )
+            ),
+
             // Default: Internal server error - never expose details
             _ => (
                 HttpStatusCode.InternalServerError,
@@ -178,7 +190,7 @@ public class GlobalExceptionHandlerMiddleware
     /// <summary>
     /// Standardized error response structure for consistent API error format
     /// </summary>
-    private record ErrorResponse(bool Success, string Error, string CorrelationId);
+    private record ErrorResponse(bool Success, string Error, string CorrelationId, string? ModuleCode = null);
 }
 
 /// <summary>

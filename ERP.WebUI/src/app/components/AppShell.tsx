@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,16 +11,16 @@ import {
   FileText,
   Settings,
   Menu,
-  X,
   Bell,
   Search,
-  TrendingUp,
+  BarChart3,
   Building,
   CheckCircle,
-  BarChart3,
   Briefcase,
   DollarSign,
+  Shield,
 } from "lucide-react";
+import { api, LoginResponse } from "@/lib/api";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -38,12 +38,20 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState<LoginResponse['user'] | null>(null);
+
+  useEffect(() => {
+    const storedUser = api.getStoredUser();
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 fixed h-full">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} user={user} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -62,7 +70,7 @@ export function AppShell({ children }: AppShellProps) {
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        <SidebarContent pathname={pathname} onNavigate={() => setSidebarOpen(false)} />
+        <SidebarContent pathname={pathname} user={user} onNavigate={() => setSidebarOpen(false)} />
       </aside>
 
       {/* Main Content */}
@@ -108,10 +116,12 @@ export function AppShell({ children }: AppShellProps) {
                 className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">AD</span>
+                  <span className="text-white font-semibold text-sm">
+                    {user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || user.username?.[0]?.toUpperCase() || 'U' : 'AD'}
+                  </span>
                 </div>
                 <span className="hidden sm:block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Admin
+                  {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : 'Admin'}
                 </span>
               </Link>
             </div>
@@ -152,12 +162,15 @@ export function AppShell({ children }: AppShellProps) {
 
 function SidebarContent({
   pathname,
+  user,
   onNavigate,
 }: {
   pathname: string;
+  user: LoginResponse['user'] | null;
   onNavigate?: () => void;
 }) {
   const [openMenus, setOpenMenus] = useState<string[]>(["modules"]);
+  const isSuperAdmin = user?.isSuperAdmin === true;
 
   const toggleMenu = (menu: string) => {
     setOpenMenus(prev =>
@@ -211,6 +224,36 @@ function SidebarContent({
         <SidebarItem href="/analytics" icon={BarChart3} label="Analytics" active={pathname.startsWith("/analytics")} onClick={onNavigate} />
         <SidebarItem href="/assets" icon={Building} label="Assets" active={pathname.startsWith("/assets")} onClick={onNavigate} />
         <SidebarItem href="/quality" icon={CheckCircle} label="Quality" active={pathname.startsWith("/quality")} onClick={onNavigate} />
+
+        {/* Admin Section - Only for SuperAdmin */}
+        {isSuperAdmin && (
+          <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 space-y-1">
+            <button
+              onClick={() => toggleMenu("admin")}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors ${
+                pathname.startsWith("/admin")
+                  ? "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Shield className="w-5 h-5" />
+                <span className="text-sm font-semibold">Admin</span>
+              </span>
+              <svg className={`w-4 h-4 transition-transform ${openMenus.includes("admin") ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {openMenus.includes("admin") && (
+              <div className="pl-3 space-y-0.5">
+                <SidebarItem href="/admin" icon={BarChart3} label="Dashboard" active={pathname === "/admin"} onClick={onNavigate} indent />
+                <SidebarItem href="/admin/licenses" icon={Shield} label="Licenses" active={pathname.startsWith("/admin/licenses")} onClick={onNavigate} indent />
+                <SidebarItem href="/admin/organizations" icon={Building} label="Organizations" active={pathname.startsWith("/admin/organizations")} onClick={onNavigate} indent />
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* Bottom */}

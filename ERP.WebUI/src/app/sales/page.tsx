@@ -1,7 +1,7 @@
 "use client";
 
-import { ShoppingCart, Users, DollarSign, TrendingUp } from "lucide-react";
-import { AppShell } from "../components/AppShell";
+import { ShoppingCart, Users, DollarSign, TrendingUp, RefreshCw, Plus } from "lucide-react";
+import { AppShell } from "@/app/components/AppShell";
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
@@ -50,9 +50,16 @@ export default function SalesPage() {
               Manage customers, sales orders, and invoices
             </p>
           </div>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-            + New Sales Order
-          </button>
+          <div className="flex gap-2">
+            <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700">
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+              <Plus className="w-4 h-4" />
+              New Sales Order
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -161,7 +168,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
       <div className="flex items-center gap-4">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colors[color]}`}><Icon className="w-6 h-6" /></div>
-        <div><p className="text-sm text-slate-500">{label}</p><p className="text-2xl font-bold text-slate-800 dark:text-white">{value}</p></div>
+        <div><p className="text-sm text-slate-500 dark:text-slate-400">{label}</p><p className="text-2xl font-bold text-slate-800 dark:text-white">{value}</p></div>
       </div>
     </div>
   );

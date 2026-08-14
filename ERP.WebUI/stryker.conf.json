@@ -1,0 +1,65 @@
+{
+  "$schema": "https://stryker-mutator.io/schemas/stryker-schemas.json",
+  "comment": "Stryker Configuration for NEXTERP Frontend - Mutation Testing",
+  "mutate": [
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/*.spec.{ts,tsx}",
+    "!src/**/*.test.{ts,tsx}",
+    "!src/**/*.stories.{ts,tsx}",
+    "!src/**/*.styles.{ts,tsx}",
+    "!src/**/types/**",
+    "!src/**/__tests__/**"
+  ],
+  "testRunner": "jest",
+  "jest": {
+    "configFile": "jest.config.js",
+    "projectType": "react",
+    "passWithNoTests": true
+  },
+  "reporters": [
+    "progress",
+    "cleartext",
+    "html",
+    "dashboard"
+  ],
+  "htmlReporter": {
+    "fileName": "reports/stryker/index.html"
+  },
+  "clearTextReporter": {
+    "allowColor": true,
+    "logTestsExecutionTime": true,
+    "allowEmoji": true
+  },
+  "dashboard": {
+    "baseUrl": "https://dashboard.stryker-mutator.io",
+    "module": "NEXTERP.Frontend",
+    "reportType": "full"
+  },
+  "thresholds": {
+    "high": 80,
+    "low": 70,
+    "break": 60
+  },
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "coverage",
+    "reports",
+    "dist",
+    "build"
+  ],
+  "excludedMutations": [
+    "booleanLiteral",
+    "stringLiteral",
+    "arrayDeclaration",
+    "objectDeclaration"
+  ],
+  "concurrency": 4,
+  "coverageAnalysis": "off",
+  "maxConcurrentTestRunners": 4,
+  "timeoutFactor": 2,
+  "timeoutMs": 30000,
+  "dangerouslyDisableRandomization": false,
+  "inPlace": false
+}

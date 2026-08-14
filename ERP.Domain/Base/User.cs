@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using ERP.Domain.Common;
 
 namespace ERP.Domain.Base;
@@ -20,7 +22,10 @@ public class User : BaseEntity
     public string? LastLoginIp { get; private set; }
     public int FailedLoginAttempts { get; private set; }
     public DateTime? LockedUntil { get; private set; }
-    public string? RefreshToken { get; private set; }
+
+    // Refresh token stored as SHA-256 hash for security
+    // Plain token is never stored - only its hash
+    public string? RefreshTokenHash { get; private set; }
     public DateTime? RefreshTokenExpiry { get; private set; }
 
     // Navigation properties
@@ -29,6 +34,10 @@ public class User : BaseEntity
 
     private readonly List<UserRole> _userRoles = new();
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
+
+    // Constants for security settings
+    private const int MaxFailedAttempts = 5;
+    private const int LockoutDurationMinutes = 30;
 
     // Full name property
     public string FullName => string.IsNullOrEmpty(LastName)
@@ -103,9 +112,9 @@ public class User : BaseEntity
     public void RecordFailedLogin()
     {
         FailedLoginAttempts++;
-        if (FailedLoginAttempts >= 5)
+        if (FailedLoginAttempts >= MaxFailedAttempts)
         {
-            LockedUntil = DateTime.UtcNow.AddMinutes(30);
+            LockedUntil = DateTime.UtcNow.AddMinutes(LockoutDurationMinutes);
         }
         UpdateTimestamp();
     }
@@ -119,22 +128,71 @@ public class User : BaseEntity
         UpdateTimestamp();
     }
 
+    /// <summary>
+    /// Sets refresh token by storing its SHA-256 hash.
+    /// Plain token is never persisted - only a hash for comparison.
+    /// </summary>
     public void SetRefreshToken(string token, TimeSpan expiry)
     {
-        RefreshToken = token;
+        // Hash the token using SHA-256
+        RefreshTokenHash = ComputeTokenHash(token);
         RefreshTokenExpiry = DateTime.UtcNow.Add(expiry);
         UpdateTimestamp();
     }
 
     public void ClearRefreshToken()
     {
-        RefreshToken = null;
+        RefreshTokenHash = null;
         RefreshTokenExpiry = null;
         UpdateTimestamp();
     }
 
-    public bool ValidateRefreshToken(string token) =>
-        RefreshToken == token && RefreshTokenExpiry > DateTime.UtcNow;
+    /// <summary>
+    /// Validates refresh token using constant-time comparison to prevent timing attacks.
+    /// </summary>
+    public bool ValidateRefreshToken(string token)
+    {
+        // First check expiry (fast check)
+        if (!RefreshTokenExpiry.HasValue || RefreshTokenExpiry.Value <= DateTime.UtcNow)
+            return false;
+
+        // If no token hash stored, return false
+        if (string.IsNullOrEmpty(RefreshTokenHash))
+            return false;
+
+        // If no token provided, return false
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        // Compute hash of provided token and compare using constant-time comparison
+        var providedHash = ComputeTokenHash(token);
+        return ConstantTimeEquals(RefreshTokenHash, providedHash);
+    }
+
+    /// <summary>
+    /// Computes SHA-256 hash of the token.
+    /// </summary>
+    private static string ComputeTokenHash(string token)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(bytes);
+    }
+
+    /// <summary>
+    /// Constant-time string comparison to prevent timing attacks.
+    /// </summary>
+    private static bool ConstantTimeEquals(string a, string b)
+    {
+        if (a.Length != b.Length)
+            return false;
+
+        var result = 0;
+        for (var i = 0; i < a.Length; i++)
+        {
+            result |= a[i] ^ b[i];
+        }
+        return result == 0;
+    }
 
     public void AssignRole(UserRole userRole)
     {

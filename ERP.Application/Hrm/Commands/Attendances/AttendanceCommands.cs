@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Base;
+using ERP.Application.Common.Behaviors;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Hrm.DTOs;
 using ERP.Domain.Hrm.Entities;
@@ -12,6 +13,7 @@ namespace ERP.Application.Hrm.Commands.Attendances;
 /// <summary>
 /// Command to record attendance
 /// </summary>
+[RequiresModule("HRM")]
 public class RecordAttendanceCommand : ICommand<Guid>
 {
     public Guid EmployeeId { get; set; }
@@ -107,6 +109,7 @@ public class RecordAttendanceCommandHandler : IRequestHandler<RecordAttendanceCo
 /// <summary>
 /// Command to check in
 /// </summary>
+[RequiresModule("HRM")]
 public class CheckInCommand : ICommand
 {
     public Guid EmployeeId { get; set; }
@@ -163,6 +166,7 @@ public class CheckInCommandHandler : IRequestHandler<CheckInCommand, Result>
 /// <summary>
 /// Command to check out
 /// </summary>
+[RequiresModule("HRM")]
 public class CheckOutCommand : ICommand
 {
     public Guid EmployeeId { get; set; }

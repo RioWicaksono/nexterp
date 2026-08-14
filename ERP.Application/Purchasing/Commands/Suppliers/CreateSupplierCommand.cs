@@ -73,8 +73,11 @@ public class CreateSupplierCommandHandler : IRequestHandler<CreateSupplierComman
 
     public async Task<Result<Guid>> Handle(CreateSupplierCommand request, CancellationToken cancellationToken)
     {
-        var organizationId = _currentUser.OrganizationId
-            ?? throw new UnauthorizedAccessException("User is not associated with an organization");
+        // Return failure if user is not associated with an organization
+        if (_currentUser.OrganizationId == null)
+            return Result<Guid>.Failure("User is not associated with an organization");
+
+        var organizationId = _currentUser.OrganizationId.Value;
 
         var exists = await _context.Suppliers
             .AnyAsync(s => s.OrganizationId == organizationId &&

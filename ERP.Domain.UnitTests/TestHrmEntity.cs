@@ -299,7 +299,9 @@ public class TestHrmEntity
             date: DateTime.UtcNow.Date,
             status: AttendanceStatus.Present);
 
-        var checkInTime = DateTime.UtcNow;
+        // Use fixed time before 9 AM to ensure Present status
+        var today = DateTime.UtcNow.Date;
+        var checkInTime = today.AddHours(8).AddMinutes(30); // 8:30 AM - well before 9 AM cutoff
 
         // Act
         attendance.CheckIn(checkInTime);

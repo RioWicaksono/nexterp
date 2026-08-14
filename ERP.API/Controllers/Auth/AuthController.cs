@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using Microsoft.EntityFrameworkCore;
 using ERP.API.Controllers.Base;
 using ERP.Application.Base.Commands.Auth;
@@ -17,6 +19,7 @@ namespace ERP.API.Controllers.Auth;
 /// <summary>
 /// Authentication endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class AuthController : BaseApiController

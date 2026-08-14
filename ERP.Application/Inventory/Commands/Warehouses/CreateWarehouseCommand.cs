@@ -65,8 +65,11 @@ public class CreateWarehouseCommandHandler : IRequestHandler<CreateWarehouseComm
 
     public async Task<Result<Guid>> Handle(CreateWarehouseCommand request, CancellationToken cancellationToken)
     {
-        var organizationId = _currentUser.OrganizationId
-            ?? throw new UnauthorizedAccessException("User is not associated with an organization");
+        // Return failure if user is not associated with an organization
+        if (_currentUser.OrganizationId == null)
+            return Result<Guid>.Failure("User is not associated with an organization");
+
+        var organizationId = _currentUser.OrganizationId.Value;
 
         // Check if code already exists
         if (!string.IsNullOrWhiteSpace(request.Code))

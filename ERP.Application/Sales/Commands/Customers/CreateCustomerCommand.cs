@@ -86,8 +86,11 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
 
     public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var organizationId = _currentUser.OrganizationId
-            ?? throw new UnauthorizedAccessException("User is not associated with an organization");
+        // Return failure if user is not associated with an organization
+        if (_currentUser.OrganizationId == null)
+            return Result<Guid>.Failure("User is not associated with an organization");
+
+        var organizationId = _currentUser.OrganizationId.Value;
 
         // Check if customer code already exists
         var existingCode = await _context.Customers

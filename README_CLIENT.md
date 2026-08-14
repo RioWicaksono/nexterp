@@ -145,7 +145,7 @@ A comprehensive ERP solution designed for businesses of all sizes.
 
 ## 🏢 About Us
 
-**NEXTERP** is built by **Care Technologies** — a team of passionate developers dedicated to making enterprise software accessible to businesses of all sizes.
+**NEXTERP** is built by **SeVeN-** — a team of passionate developers dedicated to making enterprise software accessible to businesses of all sizes.
 
 ---
 
@@ -157,6 +157,6 @@ A comprehensive ERP solution designed for businesses of all sizes.
 [![Schedule Demo](https://img.shields.io/badge/Schedule_Demo-Book_Now-10B981?style=for-the-badge)](https://nexterp.com/demo)
 [![Contact Sales](https://img.shields.io/badge/Contact_Sales-Talk_To_Us-F59E0B?style=for-the-badge)](mailto:sales@nexterp.com)
 
-*© 2026 NEXTERP by Care Technologies. All rights reserved.*
+*© 2026 NEXTERP by SeVeN-. All rights reserved.*
 
 </div>

@@ -81,8 +81,11 @@ public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEnt
 
     public async Task<Result<Guid>> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
     {
-        var organizationId = _currentUser.OrganizationId
-            ?? throw new UnauthorizedAccessException("User is not associated with an organization");
+        // Return failure if user is not associated with an organization
+        if (_currentUser.OrganizationId == null)
+            return Result<Guid>.Failure("User is not associated with an organization");
+
+        var organizationId = _currentUser.OrganizationId.Value;
 
         // Validate all accounts exist
         var accountIds = request.Lines.Select(l => l.AccountId).Distinct().ToList();

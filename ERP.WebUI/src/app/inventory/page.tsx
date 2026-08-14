@@ -1,6 +1,6 @@
 "use client";
 
-import { Package, Warehouse, AlertTriangle } from "lucide-react";
+import { Package, Warehouse, AlertTriangle, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
@@ -67,9 +67,15 @@ export default function InventoryPage() {
               Manage warehouses, stock items, and inventory levels
             </p>
           </div>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-            + Add Stock Item
-          </button>
+          <div className="flex gap-2">
+            <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700">
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
+              + Add Stock Item
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

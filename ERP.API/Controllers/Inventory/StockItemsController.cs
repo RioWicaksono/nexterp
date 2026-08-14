@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Inventory.Commands.StockItems;
 using ERP.Application.Inventory.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Inventory;
 /// <summary>
 /// Stock item management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/stock-items")]
 [Authorize]

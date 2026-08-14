@@ -1,11 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.Application.Quality.Commands;
 using ERP.API.Controllers.Base;
 
 namespace ERP.API.Controllers.Quality;
 
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]

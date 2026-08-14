@@ -8,15 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
+using StackExchange.Redis;
 using Serilog;
 using ERP.API.Controllers;
 using ERP.API.Extensions;
 using ERP.API.Middleware;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Behaviors;
+using ERP.Application.Common.Integrations;
+using ERP.Application.Common.Documents;
+using ERP.Application.Common.Modules;
+using ERP.Application.Common.Licensing;
+using ERP.Application.Common.Behaviors;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Services;
 using ERP.Infrastructure.Data;
+using ERP.Infrastructure.Data.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,41 +44,11 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
 
-// Configure Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "ERP System API",
-        Version = "v1",
-        Description = "Full-featured ERP System API with Clean Architecture"
-    });
+// Configure Swagger with API versioning
+builder.Services.AddSwaggerWithVersioning();
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+// Configure API Versioning
+builder.Services.AddApiVersioningWithExplorer();
 
 // Configure JWT Authentication - Secret key is REQUIRED, no fallback
 var jwtSecret = builder.Configuration["Jwt:SecretKey"];
@@ -110,12 +88,10 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 
-    // Support JWT from cookies for browser clients
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
-            // Read token from cookie if Authorization header is not present
             if (string.IsNullOrEmpty(context.Request.Headers.Authorization.ToString()))
             {
                 context.Token = context.Request.Cookies["nexterp_token"];
@@ -125,106 +101,97 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// Add health checks
+builder.Services.AddHealthChecks()
+    .AddNpgSql(
+        builder.Configuration.GetConnectionString("DefaultConnection") ?? "",
+        name: "postgresql",
+        tags: new[] { "db", "postgresql" })
+    .AddRedis(
+        builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379",
+        name: "redis",
+        tags: new[] { "cache", "redis" })
+    .AddCheck("custom", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
 
-// Add HttpContextAccessor
-builder.Services.AddHttpContextAccessor();
-
-// Add DbContext with SQLite for development
-var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "erp.db");
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? $"Data Source={dbPath}";
-
-builder.Services.AddDbContext<ERPDbContext>(options =>
+builder.Services.AddAuthorization(options =>
 {
-    if (connectionString.Contains("sqlite", StringComparison.OrdinalIgnoreCase) ||
-        connectionString.Contains("Data Source=", StringComparison.OrdinalIgnoreCase))
-    {
-        options.UseSqlite(connectionString);
-    }
-    else
-    {
-        options.UseNpgsql(connectionString);
-    }
+    options.AddPolicy("RequireSuperAdmin", policy => policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin", "SuperAdmin"));
 });
 
-// Register IApplicationDbContext
-builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ERPDbContext>());
+// Add DbContext
+builder.Services.AddDbContext<ERPDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsql =>
+    {
+        npgsql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+        npgsql.CommandTimeout(30);
+    });
+});
 
-// Add Application Services
-builder.Services.AddApplicationServices();
-
-// Add Infrastructure Services
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
+// Add Redis
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = ConfigurationOptions.Parse(
+        builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379");
+    configuration.AbortOnConnectFail = false;
+    return ConnectionMultiplexer.Connect(configuration);
+});
 
 // Add MediatR
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblyContaining<IApplicationDbContext>());
+{
+    cfg.RegisterServicesFromAssembly(typeof(IApplicationDbContext).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 
 // Add FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<IApplicationDbContext>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-// Add Validation Pipeline
-builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+// Add Application DbContext
+builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ERPDbContext>());
 
-// Configure CORS - Explicit origins only
-// Support both config file and environment variables (env var takes priority)
-var allowedOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
-var allowedOrigins = allowedOriginsEnv != null
-    ? allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries)
-    : builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:3000" };
+// Add Services
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IModuleAccessService, ModuleAccessService>();
+builder.Services.AddScoped<ERP.Application.Analytics.Services.INotificationService, ERP.Infrastructure.Services.NotificationService>();
+builder.Services.AddScoped<IWorkflowService, ERP.Infrastructure.Services.WorkflowService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
+// External Integration Services
+builder.Services.AddScoped<ITaxReportingService, ERP.Infrastructure.Services.Integrations.TaxReportingService>();
+builder.Services.AddScoped<IBankTransferService, ERP.Infrastructure.Services.Integrations.BankTransferService>();
+builder.Services.AddScoped<INotificationGateway, ERP.Infrastructure.Services.Integrations.NotificationGateway>();
+builder.Services.AddScoped<IDocumentTemplateService, ERP.Infrastructure.Services.Documents.DocumentTemplateService>();
+builder.Services.AddScoped<IModuleManager, ModuleManager>();
+
+// Licensing Services
+builder.Services.AddScoped<ILicenseService, LicenseService>();
+builder.Services.AddScoped<ILicenseCheckService, LicenseCheckService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddSingleton<ILicenseIntegrityService, LicenseIntegrityService>();
+builder.Services.AddScoped<ILicenseAuditService>(sp =>
+{
+    var auditLogger = new SerilogAuditLogger(sp.GetRequiredService<ILogger<LicenseAuditService>>());
+    return new LicenseAuditService(auditLogger);
+});
+
+// License Validation Pipeline
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LicenseValidationBehavior<,>));
+
+// Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
         policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .WithExposedHeaders("X-Total-Count", "X-Page-Count");
     });
-});
-
-// Add Health Checks with PostgreSQL and Redis
-builder.Services.AddHealthChecks()
-    .AddNpgSql(
-        connectionString: connectionString,
-        name: "postgresql",
-        failureStatus: HealthStatus.Unhealthy,
-        tags: new[] { "db", "sql", "postgresql", "ready" })
-    .AddRedis(
-        redisConnectionString: builder.Configuration.GetConnectionString("Redis")
-            ?? "localhost:6379",
-        name: "redis",
-        failureStatus: HealthStatus.Degraded,
-        tags: new[] { "cache", "redis", "ready" });
-
-// Configure JSON serialization for health check responses
-builder.Services.Configure<HealthCheckOptions>(options =>
-{
-    options.ResponseWriter = async (context, report) =>
-    {
-        context.Response.ContentType = "application/json";
-
-        var response = new
-        {
-            status = report.Status.ToString(),
-            timestamp = DateTime.UtcNow,
-            totalDuration = report.TotalDuration.TotalMilliseconds,
-            checks = report.Entries.Select(e => new
-            {
-                name = e.Key,
-                status = e.Value.Status.ToString(),
-                duration = e.Value.Duration.TotalMilliseconds,
-                description = e.Value.Description,
-                exception = e.Value.Exception?.Message,
-                data = e.Value.Data.Count > 0 ? e.Value.Data : null
-            })
-        };
-
-        await context.Response.WriteAsJsonAsync(response);
-    };
 });
 
 var app = builder.Build();
@@ -232,67 +199,42 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ERP System API v1");
-    });
+    app.UseSwaggerWithVersioning();
 }
-
-// Global exception handler - MUST be first to catch all exceptions
-app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseSerilogRequestLogging();
+
+// Add Prometheus metrics
+app.UseHttpMetrics(options =>
+{
+    options.AddCustomLabel("service", context => "nexterp-api");
+});
+
 app.UseAuthentication();
-app.UseRateLimiting();
 app.UseAuthorization();
 
+// Map endpoints BEFORE UseRouting
 app.MapControllers();
+app.MapHealthChecks("/health/ready");
+app.MapMetrics();
 
-// Health check endpoints
-app.MapHealthChecks("/health", new HealthCheckOptions
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
+
+Log.Information("Starting NEXTERP API on port {Port}", port);
+
+try
 {
-    Predicate = _ => false,
-    ResponseWriter = async (context, _) =>
-    {
-        context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new { status = "Healthy", timestamp = DateTime.UtcNow });
-    }
-});
-
-app.MapHealthChecks("/ready", new HealthCheckOptions
+    app.Run();
+}
+catch (Exception ex)
 {
-    Predicate = check => check.Tags.Contains("ready"),
-    ResponseWriter = async (context, report) =>
-    {
-        context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new
-        {
-            status = report.Status.ToString(),
-            timestamp = DateTime.UtcNow,
-            checks = report.Entries.Select(e => new
-            {
-                name = e.Key,
-                status = e.Value.Status.ToString(),
-                duration = $"{e.Value.Duration.TotalMilliseconds}ms"
-            })
-        });
-    }
-});
-
-app.MapHealthChecks("/live", new HealthCheckOptions
+    Log.Fatal(ex, "Application terminated unexpectedly");
+    throw;
+}
+finally
 {
-    Predicate = _ => false,
-    ResponseWriter = async (context, _) =>
-    {
-        context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new { status = "Alive", timestamp = DateTime.UtcNow });
-    }
-});
-
-// Seed database with demo data
-await DatabaseSeeder.SeedAsync(app.Services);
-
-// Run application
-app.Run();
+    Log.CloseAndFlush();
+}

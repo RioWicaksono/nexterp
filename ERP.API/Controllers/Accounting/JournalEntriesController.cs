@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Accounting.Commands.JournalEntries;
 using ERP.Application.Accounting.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Accounting;
 /// <summary>
 /// Journal Entry management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/journal-entries")]
 [Authorize]

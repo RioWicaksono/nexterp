@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Base;
+using ERP.Application.Common.Behaviors;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Hrm.DTOs;
 using ERP.Domain.Hrm.Entities;
@@ -12,6 +13,7 @@ namespace ERP.Application.Hrm.Commands.Employees;
 /// <summary>
 /// Command to create a new employee
 /// </summary>
+[RequiresModule("HRM")]
 public class CreateEmployeeCommand : ICommand<Guid>
 {
     public Guid UserId { get; set; }

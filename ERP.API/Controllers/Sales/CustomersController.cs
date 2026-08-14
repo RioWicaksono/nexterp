@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Sales.Commands.Customers;
 using ERP.Application.Sales.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Sales;
 /// <summary>
 /// Customer management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/customers")]
 [Authorize]

@@ -183,7 +183,7 @@ public class UserTests
     }
 
     [Fact]
-    public void SetRefreshToken_ShouldSetTokenAndExpiry()
+    public void SetRefreshToken_ShouldSetTokenHashAndExpiry()
     {
         // Arrange
         var user = CreateTestUser();
@@ -194,7 +194,8 @@ public class UserTests
         user.SetRefreshToken(token, expiry);
 
         // Assert
-        Assert.Equal(token, user.RefreshToken);
+        Assert.NotNull(user.RefreshTokenHash);
+        Assert.NotEqual(token, user.RefreshTokenHash); // Hash should be different from plain token
         Assert.NotNull(user.RefreshTokenExpiry);
         Assert.True(user.RefreshTokenExpiry > DateTime.UtcNow);
     }

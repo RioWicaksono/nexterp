@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
+
 using ERP.API.Controllers.Base;
 using ERP.Application.Hrm.Commands.Leaves;
 using ERP.Application.Hrm.DTOs;
@@ -11,6 +13,7 @@ namespace ERP.API.Controllers.Hrm;
 /// <summary>
 /// Leave management endpoints
 /// </summary>
+[ApiVersion("1.0")]
 [ApiController]
 [Route("api/v1/leave-requests")]
 [Authorize]
@@ -24,18 +27,11 @@ public class LeaveRequestsController : BaseApiController
     }
 
     /// <summary>
-    /// Get all leave requests with pagination
+    /// Get all leave requests
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<LeaveRequestDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLeaveRequests(
-        [FromQuery] Guid? employeeId,
-        [FromQuery] string? status,
-        [FromQuery] DateTime? fromDate,
-        [FromQuery] DateTime? toDate,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
-        CancellationToken cancellationToken = default)
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetLeaveRequests(CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetLeaveRequestsQuery(), cancellationToken);
         return HandleResult(result);
@@ -45,8 +41,8 @@ public class LeaveRequestsController : BaseApiController
     /// Get leave request by ID
     /// </summary>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<LeaveRequestDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetLeaveRequestByIdQuery(id), cancellationToken);
@@ -57,8 +53,8 @@ public class LeaveRequestsController : BaseApiController
     /// Create a new leave request
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<Guid>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateLeaveRequestDto request, CancellationToken cancellationToken)
     {
         var command = new CreateLeaveRequestCommand
@@ -83,8 +79,8 @@ public class LeaveRequestsController : BaseApiController
     /// Approve leave request
     /// </summary>
     [HttpPost("{id:guid}/approve")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Approve(Guid id, [FromBody] ApproveLeaveDto request, CancellationToken cancellationToken)
     {
         var command = new ApproveLeaveRequestCommand
@@ -102,8 +98,8 @@ public class LeaveRequestsController : BaseApiController
     /// Reject leave request
     /// </summary>
     [HttpPost("{id:guid}/reject")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Reject(Guid id, [FromBody] RejectLeaveDto request, CancellationToken cancellationToken)
     {
         var command = new ApproveLeaveRequestCommand
@@ -122,12 +118,57 @@ public class LeaveRequestsController : BaseApiController
     /// Cancel leave request
     /// </summary>
     [HttpPost("{id:guid}/cancel")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
     {
-        // TODO: Implement cancel command
-        return Error("Not implemented yet", StatusCodes.Status501NotImplemented);
+        var command = new CancelLeaveRequestCommand
+        {
+            LeaveRequestId = id
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Set leave balance for employee
+    /// </summary>
+    [HttpPost("leave-balances")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetLeaveBalance([FromBody] SetLeaveBalanceDto request, CancellationToken cancellationToken)
+    {
+        var command = new SetLeaveBalanceCommand
+        {
+            EmployeeId = request.EmployeeId,
+            LeaveType = request.LeaveType,
+            Year = request.Year,
+            TotalDays = request.TotalDays,
+            CarryForwardDays = request.CarryForwardDays,
+            Notes = request.Notes
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Auto-allocate leave balance based on years of service
+    /// </summary>
+    [HttpPost("{employeeId:guid}/auto-allocate-leave")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AutoAllocateLeave(Guid employeeId, [FromQuery] int? year = null, CancellationToken cancellationToken = default)
+    {
+        var command = new AutoAllocateLeaveBalanceCommand
+        {
+            EmployeeId = employeeId,
+            Year = year ?? DateTime.UtcNow.Year
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
     }
 }
 
@@ -146,4 +187,17 @@ public class RejectLeaveDto
 {
     public Guid ApproverId { get; set; }
     public string Reason { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// DTO for setting leave balance
+/// </summary>
+public class SetLeaveBalanceDto
+{
+    public Guid EmployeeId { get; set; }
+    public string LeaveType { get; set; } = string.Empty;
+    public int Year { get; set; }
+    public decimal TotalDays { get; set; }
+    public decimal CarryForwardDays { get; set; }
+    public string? Notes { get; set; }
 }

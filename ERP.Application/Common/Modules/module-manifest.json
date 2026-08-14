@@ -1,0 +1,101 @@
+{
+  "name": "NEXTERP ERP",
+  "version": "2.0.0",
+  "description": "Enterprise Resource Planning System for Indonesian SMB Companies",
+  "modules": {
+    "sales": {
+      "enabled": true,
+      "tier": "starter",
+      "tierOrder": 1,
+      "path": "modules/sales",
+      "description": "Customer management, orders, invoices, payments",
+      "features": ["customer", "quotation", "order", "invoice", "payment"]
+    },
+    "inventory": {
+      "enabled": true,
+      "tier": "starter",
+      "tierOrder": 1,
+      "path": "modules/inventory",
+      "description": "Stock management, multi-warehouse, batch/serial tracking",
+      "features": ["warehouse", "stock", "batch", "serial", "transfer"]
+    },
+    "purchasing": {
+      "enabled": true,
+      "tier": "starter",
+      "tierOrder": 1,
+      "path": "modules/purchasing",
+      "description": "Supplier management, purchase orders, goods receipt",
+      "features": ["supplier", "purchase-order", "goods-receipt", "price-tracking"]
+    },
+    "hrm": {
+      "enabled": true,
+      "tier": "professional",
+      "tierOrder": 2,
+      "path": "modules/hrm",
+      "description": "Employee management, attendance, leave, payroll",
+      "features": ["employee", "attendance", "leave", "payroll", "overtime"]
+    },
+    "accounting": {
+      "enabled": true,
+      "tier": "professional",
+      "tierOrder": 2,
+      "path": "modules/accounting",
+      "description": "Chart of accounts, journal entries, financial reports",
+      "features": ["chart-of-accounts", "journal", "financial-report"]
+    },
+    "projects": {
+      "enabled": false,
+      "tier": "enterprise",
+      "tierOrder": 3,
+      "path": "modules/projects",
+      "description": "Project planning, task tracking, Gantt charts",
+      "features": ["project", "task", "gantt", "resource"]
+    },
+    "quality": {
+      "enabled": false,
+      "tier": "enterprise",
+      "tierOrder": 3,
+      "path": "modules/quality",
+      "description": "Quality inspections, NCR management, CAPA",
+      "features": ["inspection", "ncr", "capa", "audit"]
+    },
+    "assets": {
+      "enabled": false,
+      "tier": "enterprise",
+      "tierOrder": 3,
+      "path": "modules/assets",
+      "description": "Fixed asset management, depreciation, maintenance",
+      "features": ["asset", "depreciation", "maintenance", "insurance"]
+    },
+    "analytics": {
+      "enabled": false,
+      "tier": "enterprise",
+      "tierOrder": 3,
+      "path": "modules/analytics",
+      "description": "Real-time dashboards, KPI tracking, reporting",
+      "features": ["dashboard", "kpi", "report", "notification"]
+    }
+  },
+  "tiers": {
+    "starter": {
+      "name": "STARTER",
+      "description": "Basic modules for small businesses",
+      "modules": ["sales", "inventory", "purchasing"]
+    },
+    "professional": {
+      "name": "PROFESSIONAL",
+      "description": "Mid-market features",
+      "modules": ["sales", "inventory", "purchasing", "hrm", "accounting"]
+    },
+    "enterprise": {
+      "name": "ENTERPRISE",
+      "description": "Full suite with all modules",
+      "modules": ["sales", "inventory", "purchasing", "hrm", "accounting", "projects", "quality", "assets", "analytics"]
+    }
+  },
+  "license": {
+    "defaultTier": "starter",
+    "trialDays": 14,
+    "warningDays": 7
+  }
+}

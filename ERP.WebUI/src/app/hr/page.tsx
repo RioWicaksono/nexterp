@@ -1,7 +1,7 @@
 "use client";
 
-import { Users, UserCheck, Calendar, TrendingUp } from "lucide-react";
-import { AppShell } from "../components/AppShell";
+import { Users, UserCheck, Calendar, TrendingUp, RefreshCw, Plus, Building } from "lucide-react";
+import { AppShell } from "@/app/components/AppShell";
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
@@ -65,9 +65,16 @@ export default function HRMPage() {
               Manage employees, attendance, and HR operations
             </p>
           </div>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-            + Add Employee
-          </button>
+          <div className="flex gap-2">
+            <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700">
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+              <Plus className="w-4 h-4" />
+              Add Employee
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
