@@ -10,6 +10,7 @@ public class OrganizationModule : BaseEntity
 {
     public Guid OrganizationId { get; private set; }
     public Guid ModuleId { get; private set; }
+    public string ModuleCode { get; private set; } = string.Empty;
     public DateTime ActivatedAt { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
     public string? ActivatedBy { get; private set; }
@@ -29,6 +30,18 @@ public class OrganizationModule : BaseEntity
     {
         OrganizationId = organizationId;
         ModuleId = moduleId;
+        ModuleCode = string.Empty;
+        ActivatedAt = DateTime.UtcNow;
+        ActivatedBy = activatedBy;
+        ExpiresAt = expiresAt;
+        Notes = notes;
+    }
+
+    public OrganizationModule(Guid organizationId, string moduleCode, string? activatedBy = null, DateTime? expiresAt = null, string? notes = null)
+    {
+        OrganizationId = organizationId;
+        ModuleId = Guid.Empty;
+        ModuleCode = moduleCode.ToUpperInvariant();
         ActivatedAt = DateTime.UtcNow;
         ActivatedBy = activatedBy;
         ExpiresAt = expiresAt;

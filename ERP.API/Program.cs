@@ -298,6 +298,48 @@ using (var scope = app.Services.CreateScope())
             ON CONFLICT (""Id"") DO NOTHING;
         ");
 
+        // Seed Role Permissions for Admin role (all permissions)
+        var adminPermissions = new[]
+        {
+            "admin.users.read", "admin.users.create", "admin.users.update", "admin.users.delete",
+            "admin.roles.read", "admin.roles.create", "admin.roles.update", "admin.roles.delete",
+            "admin.modules.read", "admin.modules.manage", "admin.settings.read", "admin.settings.update",
+            "hrm.employees.read", "hrm.employees.create", "hrm.employees.update", "hrm.employees.delete",
+            "hrm.departments.read", "hrm.departments.create", "hrm.departments.update", "hrm.departments.delete",
+            "hrm.attendances.read", "hrm.attendances.create", "hrm.attendances.update",
+            "hrm.leave.read", "hrm.leave.approve", "hrm.payroll.read", "hrm.payroll.process",
+            "hrm.reports.read",
+            "inventory.items.read", "inventory.items.create", "inventory.items.update", "inventory.items.delete",
+            "inventory.stock.read", "inventory.stock.adjust", "inventory.warehouses.read", "inventory.warehouses.manage",
+            "inventory.reports.read",
+            "sales.orders.read", "sales.orders.create", "sales.orders.update", "sales.orders.delete",
+            "sales.invoices.read", "sales.invoices.create", "sales.invoices.update",
+            "sales.customers.read", "sales.customers.manage", "sales.reports.read",
+            "purchasing.orders.read", "purchasing.orders.create", "purchasing.orders.update", "purchasing.orders.delete",
+            "purchasing.suppliers.read", "purchasing.suppliers.manage", "purchasing.reports.read",
+            "accounting.accounts.read", "accounting.accounts.create", "accounting.accounts.update",
+            "accounting.journals.read", "accounting.journals.create", "accounting.journals.post",
+            "accounting.reports.read", "accounting.reports.financial",
+            "projects.read", "projects.create", "projects.update", "projects.delete",
+            "projects.tasks.read", "projects.tasks.manage", "projects.reports.read",
+            "assets.read", "assets.create", "assets.update", "assets.delete",
+            "assets.maintenance.read", "assets.maintenance.schedule", "assets.depreciation.read",
+            "quality.inspections.read", "quality.inspections.create", "quality.inspections.update",
+            "quality.nc.read", "quality.nc.create", "quality.nc.resolve",
+            "analytics.dashboard.read", "analytics.reports.read", "analytics.exports.read"
+        };
+
+        foreach (var permission in adminPermissions)
+        {
+            await dbContext.Database.ExecuteSqlRawAsync($@"
+                INSERT INTO ""RolePermissions"" (""Id"", ""RoleId"", ""Permission"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+                SELECT '{Guid.NewGuid()}', '{adminRoleId}', '{permission}', FALSE, NOW(), NOW()
+                WHERE NOT EXISTS (SELECT 1 FROM ""RolePermissions"" WHERE ""RoleId"" = '{adminRoleId}' AND ""Permission"" = '{permission}');
+            ");
+        }
+
+        logger.LogInformation("Demo data ensured successfully");
+
         // Seed Organization License
         await dbContext.Database.ExecuteSqlRawAsync($@"
             INSERT INTO ""OrganizationLicenses"" (""Id"", ""OrganizationId"", ""LicenseTierId"", ""StartDate"", ""EndDate"", ""MaxUsers"", ""IsAutoRenew"", ""BillingEmail"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")

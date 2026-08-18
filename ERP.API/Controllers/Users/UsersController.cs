@@ -11,12 +11,9 @@ using ERP.Application.Common.DTOs;
 
 namespace ERP.API.Controllers.Users;
 
-/// <summary>
-/// User management endpoints
-/// </summary>
 [ApiVersion("1.0")]
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/users")]
 [Authorize]
 public class UsersController : BaseApiController
 {
@@ -30,12 +27,6 @@ public class UsersController : BaseApiController
     /// <summary>
     /// Get all users with pagination
     /// </summary>
-    /// <param name="organizationId">Filter by organization</param>
-    /// <param name="isActive">Filter by active status</param>
-    /// <param name="search">Search by name/email</param>
-    /// <param name="page">Page number</param>
-    /// <param name="pageSize">Items per page</param>
-    /// <returns>Paginated users</returns>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResult<UserDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUsers(
@@ -51,7 +42,7 @@ public class UsersController : BaseApiController
             OrganizationId = organizationId,
             IsActive = isActive,
             Search = search,
-            Pagination = new Application.Common.DTOs.PaginationParams
+            Pagination = new PaginationParams
             {
                 Page = page,
                 PageSize = pageSize
@@ -65,8 +56,6 @@ public class UsersController : BaseApiController
     /// <summary>
     /// Get user by ID
     /// </summary>
-    /// <param name="id">User ID</param>
-    /// <returns>User details</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
@@ -80,8 +69,6 @@ public class UsersController : BaseApiController
     /// <summary>
     /// Create a new user
     /// </summary>
-    /// <param name="request">User creation data</param>
-    /// <returns>Created user ID</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<Guid>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -110,29 +97,36 @@ public class UsersController : BaseApiController
     /// <summary>
     /// Update user profile
     /// </summary>
-    /// <param name="id">User ID</param>
-    /// <param name="request">Update data</param>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto request, CancellationToken cancellationToken)
     {
-        // TODO: Implement update command
-        return Error("Not implemented yet", StatusCodes.Status501NotImplemented);
+        var command = new UpdateUserCommand
+        {
+            Id = id,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Phone = request.Phone,
+            IsActive = request.IsActive
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
     }
 
     /// <summary>
     /// Delete user (soft delete)
     /// </summary>
-    /// <param name="id">User ID</param>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        // TODO: Implement delete command
-        return Error("Not implemented yet", StatusCodes.Status501NotImplemented);
+        var command = new DeleteUserCommand { Id = id };
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
     }
 
     /// <summary>
@@ -143,8 +137,15 @@ public class UsersController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordDto request, CancellationToken cancellationToken)
     {
-        // TODO: Implement change password command
-        return Error("Not implemented yet", StatusCodes.Status501NotImplemented);
+        var command = new ChangePasswordCommand
+        {
+            UserId = id,
+            CurrentPassword = request.CurrentPassword,
+            NewPassword = request.NewPassword
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
     }
 
     /// <summary>
@@ -153,18 +154,76 @@ public class UsersController : BaseApiController
     [HttpPost("{id:guid}/reset-password")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ResetPassword(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordDto request, CancellationToken cancellationToken)
     {
-        // TODO: Implement reset password command
-        return Error("Not implemented yet", StatusCodes.Status501NotImplemented);
+        var command = new ResetPasswordCommand
+        {
+            UserId = id,
+            NewPassword = request.NewPassword
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Get user roles
+    /// </summary>
+    [HttpGet("{id:guid}/roles")]
+    [ProducesResponseType(typeof(ApiResponse<List<UserRoleDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUserRoles(Guid id, [FromQuery] Guid organizationId, CancellationToken cancellationToken)
+    {
+        var query = new GetUserRolesQuery
+        {
+            UserId = id,
+            OrganizationId = organizationId
+        };
+
+        var result = await _mediator.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Assign roles to user
+    /// </summary>
+    [HttpPut("{id:guid}/roles")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AssignRoles(Guid id, [FromBody] AssignUserRolesDto request, CancellationToken cancellationToken)
+    {
+        var command = new AssignUserRolesCommand
+        {
+            UserId = id,
+            OrganizationId = request.OrganizationId,
+            RoleIds = request.RoleIds
+        };
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return HandleResult(result);
     }
 }
 
-/// <summary>
-/// DTO for password change
-/// </summary>
+public class UpdateUserDto
+{
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Phone { get; set; }
+    public bool? IsActive { get; set; }
+}
+
 public class ChangePasswordDto
 {
     public string CurrentPassword { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
+}
+
+public class ResetPasswordDto
+{
+    public string NewPassword { get; set; } = string.Empty;
+}
+
+public class AssignUserRolesDto
+{
+    public Guid OrganizationId { get; set; }
+    public List<Guid> RoleIds { get; set; } = new();
 }
