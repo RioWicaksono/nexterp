@@ -85,15 +85,38 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 		if (!user.IsActive && !user.IsSuperAdmin)
 			return Result<LoginResponseDto>.Failure("Account is inactive");
 
-		// Generate tokens
-		var roles = new List<string>();
-		var (accessToken, expiresAt) = _jwtService.GenerateAccessToken(user, roles);
-		var refreshToken = _jwtService.GenerateRefreshToken();
+		// Load user roles
+		var userRoleIds = await _context.UserRoles
+			.Where(ur => ur.UserId == user.Id && !ur.IsDeleted)
+			.Select(ur => ur.RoleId)
+			.ToListAsync(cancellationToken);
 
+		var userRoles = await _context.Roles
+			.Where(r => userRoleIds.Contains(r.Id) && !r.IsDeleted)
+			.Select(r => r.Name)
+			.ToListAsync(cancellationToken);
+
+		// Add SuperAdmin role if user is super admin
+		if (user.IsSuperAdmin && !userRoles.Contains("SuperAdmin"))
+		{
+			userRoles.Add("SuperAdmin");
+		}
+
+		// Load role permissions
+		var rolePermissions = await _context.RolePermissions
+			.Where(rp => userRoleIds.Contains(rp.RoleId) && !rp.IsDeleted)
+			.Select(rp => rp.Permission)
+			.Distinct()
+			.ToListAsync(cancellationToken);
+
+		// Generate tokens with roles and permissions
+		var (accessToken, expiresAt) = _jwtService.GenerateAccessToken(user, rolePermissions);
+
+		// Add role claims to JWT
 		var response = new LoginResponseDto
 		{
 			AccessToken = accessToken,
-			RefreshToken = refreshToken,
+			RefreshToken = _jwtService.GenerateRefreshToken(),
 			ExpiresAt = expiresAt,
 			User = new UserDto
 			{
@@ -107,7 +130,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 				IsActive = user.IsActive,
 				IsSuperAdmin = user.IsSuperAdmin,
 				LastLoginAt = user.LastLoginAt,
-				Roles = roles
+				Roles = userRoles
 			}
 		};
 

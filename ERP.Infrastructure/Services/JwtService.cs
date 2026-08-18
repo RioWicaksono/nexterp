@@ -35,6 +35,13 @@ public class JwtService : IJwtService
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
 
+        // Add role claims for authorization
+        if (user.IsSuperAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "SuperAdmin"));
+            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiresAt = DateTime.UtcNow.AddMinutes(_settings.AccessTokenExpirationMinutes);
