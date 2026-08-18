@@ -12,6 +12,9 @@ import {
   DollarSign,
   Briefcase,
   Settings,
+  Shield,
+  Key,
+  Building2,
   LogOut,
   ChevronLeft,
   Menu,
@@ -25,6 +28,9 @@ const navigation = [
   { name: 'Purchasing', href: '/dashboard/purchasing', icon: ShoppingCart },
   { name: 'Accounting', href: '/dashboard/accounting', icon: DollarSign },
   { name: 'Projects', href: '/dashboard/projects', icon: Briefcase },
+  { name: 'Modules', href: '/dashboard/modules', icon: Shield },
+  { name: 'Roles', href: '/dashboard/roles', icon: Key },
+  { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
