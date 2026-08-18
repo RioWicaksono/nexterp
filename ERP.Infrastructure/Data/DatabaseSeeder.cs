@@ -55,7 +55,8 @@ public static class DatabaseSeeder
         var context = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()!.CreateLogger("DatabaseSeeder");
 
-        await context.Database.MigrateAsync();
+        // Skip migrations - database already has tables
+        // Just seed data if tables are empty
 
         var now = DateTime.UtcNow;
         var passwordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!");
