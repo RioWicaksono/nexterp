@@ -252,6 +252,59 @@ using (var scope = app.Services.CreateScope())
             WHERE NOT EXISTS (SELECT 1 FROM ""UserRoles"" WHERE ""UserId"" = '{demoUserId}' AND ""RoleId"" = '{adminRoleId}');
         ");
 
+        // Seed Departments
+        var engineeringDeptId = Guid.Parse("00000000-0000-0000-0000-000000000010");
+        var hrDeptId = Guid.Parse("00000000-0000-0000-0000-000000000011");
+        var financeDeptId = Guid.Parse("00000000-0000-0000-0000-000000000012");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Departments"" (""Id"", ""OrganizationId"", ""Name"", ""Code"", ""Description"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES
+            ('{engineeringDeptId}', '{demoOrgId}', 'Engineering', 'ENG', 'Engineering Department', TRUE, FALSE, NOW(), NOW()),
+            ('{hrDeptId}', '{demoOrgId}', 'Human Resources', 'HR', 'Human Resources Department', TRUE, FALSE, NOW(), NOW()),
+            ('{financeDeptId}', '{demoOrgId}', 'Finance', 'FIN', 'Finance Department', TRUE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Seed Positions
+        var engineerPosId = Guid.Parse("00000000-0000-0000-0000-000000000020");
+        var hrPosId = Guid.Parse("00000000-0000-0000-0000-000000000021");
+        var managerPosId = Guid.Parse("00000000-0000-0000-0000-000000000022");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Positions"" (""Id"", ""OrganizationId"", ""Name"", ""Code"", ""Description"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES
+            ('{engineerPosId}', '{demoOrgId}', 'Software Engineer', 'SE', 'Software Engineer Position', TRUE, FALSE, NOW(), NOW()),
+            ('{hrPosId}', '{demoOrgId}', 'HR Manager', 'HRM', 'HR Manager Position', TRUE, FALSE, NOW(), NOW()),
+            ('{managerPosId}', '{demoOrgId}', 'Department Manager', 'MGR', 'Manager Position', TRUE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Seed Warehouses
+        var mainWhId = Guid.Parse("00000000-0000-0000-0000-000000000030");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Warehouses"" (""Id"", ""OrganizationId"", ""Name"", ""Code"", ""Description"", ""Address"", ""City"", ""Country"", ""Phone"", ""Email"", ""IsActive"", ""IsDefault"", ""AllowsNegativeStock"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES
+            ('{mainWhId}', '{demoOrgId}', 'Main Warehouse', 'WH001', 'Main storage warehouse', '123 Industrial Ave', 'Jakarta', 'Indonesia', '+6221123456', 'warehouse@nexterp.com', TRUE, TRUE, FALSE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Seed License Tiers
+        var starterTierId = Guid.Parse("00000000-0000-0000-0000-000000000200");
+        var proTierId = Guid.Parse("00000000-0000-0000-0000-000000000201");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""LicenseTiers"" (""Id"", ""Code"", ""DisplayName"", ""Description"", ""SortOrder"", ""MonthlyPrice"", ""DefaultMaxUsers"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES
+            ('{starterTierId}', 'STARTER', 'Starter', 'For small teams', 1, 99.00, 5, TRUE, FALSE, NOW(), NOW()),
+            ('{proTierId}', 'PROFESSIONAL', 'Professional', 'For growing businesses', 2, 299.00, 25, TRUE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Seed Organization License
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""OrganizationLicenses"" (""Id"", ""OrganizationId"", ""LicenseTierId"", ""StartDate"", ""EndDate"", ""MaxUsers"", ""IsAutoRenew"", ""BillingEmail"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            SELECT '{Guid.NewGuid()}', '{demoOrgId}', '{proTierId}', NOW(), NOW() + INTERVAL '1 year', 100, TRUE, 'billing@nexterp.com', FALSE, NOW(), NOW()
+            WHERE NOT EXISTS (SELECT 1 FROM ""OrganizationLicenses"" WHERE ""OrganizationId"" = '{demoOrgId}');
+        ");
+
         logger.LogInformation("Demo data ensured successfully");
     }
     catch (Exception ex)
