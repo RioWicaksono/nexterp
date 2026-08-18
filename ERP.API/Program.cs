@@ -193,9 +193,20 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
-        policy.WithOrigins(allowedOrigins)
+
+        // For production, allow Railway and Vercel domains
+        var allOrigins = allowedOrigins.Concat(new[]
+        {
+            "https://*.vercel.app",
+            "https://*.railway.app",
+            "http://localhost:3000",
+            "http://localhost:3001"
+        }).ToArray();
+
+        policy.WithOrigins(allOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
+              .AllowCredentials()
               .WithExposedHeaders("X-Total-Count", "X-Page-Count");
     });
 });
