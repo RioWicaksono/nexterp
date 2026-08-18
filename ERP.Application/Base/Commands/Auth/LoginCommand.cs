@@ -52,11 +52,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 
 	public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
 	{
-		// Always fetch user by username (or null if not found)
+		var normalizedInput = request.Username.ToLowerInvariant().Trim();
+
+		// Always fetch user by username OR email (or null if not found)
 		var user = await _context.Users
 			.AsNoTracking()
 			.FirstOrDefaultAsync(u =>
-				u.Username == request.Username.ToLowerInvariant() &&
+				(u.Username == normalizedInput || u.Email == normalizedInput) &&
 				!u.IsDeleted,
 				cancellationToken);
 
