@@ -207,6 +207,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var passwordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!");
 
     try
     {
@@ -219,10 +220,39 @@ using (var scope = app.Services.CreateScope())
         ");
         logger.LogInformation("Database schema fixes applied successfully");
 
-        // Seed demo data if database is empty
-        logger.LogInformation("Seeding demo data if needed...");
-        await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
-        logger.LogInformation("Demo data seeding completed");
+        // Ensure demo organization exists
+        var demoOrgId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        logger.LogInformation("Ensuring demo data exists...");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Organizations"" (""Id"", ""Name"", ""Code"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES ('{demoOrgId}', 'Nexterp Demo Corp', 'NEXTERP', TRUE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Ensure admin role exists
+        var adminRoleId = Guid.Parse("00000000-0000-0000-0000-000000000101");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Roles"" (""Id"", ""OrganizationId"", ""Name"", ""Description"", ""IsActive"", ""IsSystemRole"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES ('{adminRoleId}', '{demoOrgId}', 'Admin', 'System Administrator', TRUE, TRUE, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO NOTHING;
+        ");
+
+        // Ensure demo user exists with correct password
+        var demoUserId = Guid.Parse("00000000-0000-0000-0000-000000000100");
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""Users"" (""Id"", ""OrganizationId"", ""Username"", ""Email"", ""PasswordHash"", ""FirstName"", ""LastName"", ""Phone"", ""IsActive"", ""IsSuperAdmin"", ""FailedLoginAttempts"", ""LockedUntil"", ""LastLoginAt"", ""LastLoginIp"", ""RefreshTokenHash"", ""RefreshTokenExpiry"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            VALUES ('{demoUserId}', '{demoOrgId}', 'admin', 'admin@nexterp.com', '{passwordHash}', 'System', 'Administrator', NULL, TRUE, TRUE, 0, NULL, NULL, NULL, NULL, NULL, FALSE, NOW(), NOW())
+            ON CONFLICT (""Id"") DO UPDATE SET ""PasswordHash"" = EXCLUDED.""PasswordHash"";
+        ");
+
+        // Assign Admin role to demo user
+        await dbContext.Database.ExecuteSqlRawAsync($@"
+            INSERT INTO ""UserRoles"" (""Id"", ""UserId"", ""RoleId"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            SELECT '{Guid.NewGuid()}', '{demoUserId}', '{adminRoleId}', FALSE, NOW(), NOW()
+            WHERE NOT EXISTS (SELECT 1 FROM ""UserRoles"" WHERE ""UserId"" = '{demoUserId}' AND ""RoleId"" = '{adminRoleId}');
+        ");
+
+        logger.LogInformation("Demo data ensured successfully");
     }
     catch (Exception ex)
     {
