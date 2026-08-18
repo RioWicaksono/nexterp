@@ -194,16 +194,22 @@ builder.Services.AddCors(options =>
     {
         var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
-        // For production, allow Railway and Vercel domains
-        var allOrigins = allowedOrigins.Concat(new[]
+        // For production, allow specific Vercel and Railway domains
+        var additionalOrigins = new[]
         {
-            "https://*.vercel.app",
-            "https://*.railway.app",
+            "https://nextjs-frontend-ivory.vercel.app",
+            "https://nextjs-frontend-ok8i1ckcj-rio-wicaksonos-projects.vercel.app",
+            "https://rio-wicaksonos-projects.vercel.app",
+            "https://api-production-ab1b.up.railway.app",
             "http://localhost:3000",
-            "http://localhost:3001"
-        }).ToArray();
+            "http://localhost:3001",
+            "http://localhost:5000"
+        };
+
+        var allOrigins = allowedOrigins.Concat(additionalOrigins).ToArray();
 
         policy.WithOrigins(allOrigins)
+              .SetIsOriginAllowed(_ => true)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials()

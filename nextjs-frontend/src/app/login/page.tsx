@@ -58,7 +58,7 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <label htmlFor="username" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Email or Username
+              Username
             </label>
             <input
               id="username"
@@ -66,7 +66,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="admin@nexterp.com"
+              placeholder="admin"
               required
             />
           </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
         <div className="text-center text-sm text-slate-500 dark:text-slate-400">
           <p>Demo credentials:</p>
-          <p className="font-mono text-xs mt-1">admin@nexterp.com / Admin123!</p>
+          <p className="font-mono text-xs mt-1">admin / Admin123!!</p>
         </div>
       </div>
     </div>
