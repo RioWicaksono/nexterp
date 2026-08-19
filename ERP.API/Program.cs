@@ -208,8 +208,16 @@ builder.Services.AddCors(options =>
 
         var allOrigins = allowedOrigins.Concat(additionalOrigins).ToArray();
 
-        policy.WithOrigins(allOrigins)
-              .SetIsOriginAllowed(_ => true)
+        // SECURITY: Remove fallback to allow-all origins - always require explicit origins
+        if (allOrigins.Length > 0)
+        {
+            policy.WithOrigins(allOrigins)
+        }
+        // else: No additional origins configured - CORS will only use AllowedOrigins from config
+
+        policy
+            .AllowAnyMethod()
+            .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials()
@@ -223,8 +231,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!");
+    var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
+    // Use configurable demo password from env var with fallback for local dev
+    var demoPasswordHash = BCrypt.Net.BCrypt.HashPassword(
+        Environment.GetEnvironmentVariable("DEMO_PASSWORD") ?? "DevPassword2024!");;
 
     try
     {
