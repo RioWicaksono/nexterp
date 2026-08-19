@@ -271,8 +271,8 @@ export default function AccountingPage() {
                         <td className="px-4 py-3 text-center text-sm text-slate-600 dark:text-slate-400">{acc.class || 'Debit'}</td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-400">{acc.openingBalance ? Number(acc.openingBalance).toFixed(2) : '0.00'}</td>
                         <td className="px-4 py-3 text-right">
-                          <button onClick={() => openEdit(acc)} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => confirmDelete(acc)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => openEdit(acc)} aria-label="Edit account" className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={() => confirmDelete(acc)} aria-label="Delete account" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
                         </td>
                       </tr>
                     ))}
@@ -387,7 +387,7 @@ export default function AccountingPage() {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingAccount ? 'Edit Account' : 'Add Account'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} aria-label="Close dialog" className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div>

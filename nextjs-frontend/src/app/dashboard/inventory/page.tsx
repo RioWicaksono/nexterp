@@ -239,8 +239,8 @@ export default function InventoryPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button onClick={() => openEdit(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => confirmDelete(item)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => openEdit(item)} aria-label="Edit item" className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => confirmDelete(item)} aria-label="Delete item" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
                       </td>
                     </tr>
                   ))}
@@ -282,7 +282,7 @@ export default function InventoryPage() {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingItem ? 'Edit Item' : 'Add Stock Item'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} aria-label="Close dialog" className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div>

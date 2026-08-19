@@ -94,6 +94,8 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => handleToggle(item.key)}
+                    aria-label={`${item.label}: ${toggles[item.key] ? 'enabled' : 'disabled'}`}
+                    aria-pressed={toggles[item.key]}
                     className={`relative w-11 h-6 rounded-full transition ${toggles[item.key] ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
                   >
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${toggles[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
@@ -162,6 +164,8 @@ export default function SettingsPage() {
                     <button
                       key={t.value}
                       onClick={() => setTheme(t.value)}
+                      aria-label={`Select ${t.label} theme`}
+                      aria-pressed={theme === t.value}
                       className={`flex-1 p-4 rounded-xl border-2 transition ${theme === t.value ? 'border-blue-500' : 'border-transparent ' + t.border}`}
                     >
                       <div className={`w-full h-12 rounded-lg mb-2 ${t.bg} border ${t.border}`} />
@@ -177,6 +181,8 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setCompact(c => !c)}
+                  aria-label={`Compact mode: ${compact ? 'enabled' : 'disabled'}`}
+                  aria-pressed={compact}
                   className={`relative w-11 h-6 rounded-full transition ${compact ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
                 >
                   <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${compact ? 'translate-x-5' : 'translate-x-0.5'}`} />

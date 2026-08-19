@@ -76,11 +76,11 @@ export default function RolesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded">
+                  <button aria-label="Edit role" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded">
                     <Edit2 className="w-4 h-4" />
                   </button>
                   {!role.system && (
-                    <button onClick={() => handleDelete(role.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded">
+                    <button onClick={() => handleDelete(role.id)} aria-label="Delete role" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}

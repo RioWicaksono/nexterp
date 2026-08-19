@@ -65,6 +65,7 @@ export default function ModulesPage() {
                 <td className="px-4 py-3 text-center">
                   <button
                     onClick={() => toggle(mod.id)}
+                    aria-label={mod.enabled ? `Disable ${mod.name}` : `Enable ${mod.name}`}
                     className={`p-2 rounded-lg ${mod.enabled ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-100'}`}
                   >
                     {mod.enabled ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
