@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Shield, Check, X } from 'lucide-react';
 
 const MODULES = [
@@ -13,12 +14,18 @@ const MODULES = [
 ];
 
 export default function ModulesPage() {
+  const [items, setItems] = useState(MODULES);
+
+  const toggle = (id: string) => {
+    setItems(prev => prev.map(m => m.id === id ? { ...m, enabled: !m.enabled } : m));
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Modules</h1>
-          <p className="text-sm text-slate-500 mt-1">{MODULES.filter(m => m.enabled).length} of {MODULES.length} enabled</p>
+          <p className="text-sm text-slate-500 mt-1">{items.filter(m => m.enabled).length} of {items.length} enabled</p>
         </div>
       </div>
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -32,7 +39,7 @@ export default function ModulesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-            {MODULES.map(mod => (
+            {items.map(mod => (
               <tr key={mod.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -46,7 +53,7 @@ export default function ModulesPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 rounded text-xs font-medium text-slate-500">{mod.code}</span>
+                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500">{mod.code}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <span className={`px-2 py-1 text-xs rounded-full font-medium ${mod.enabled ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700'}`}>
@@ -54,7 +61,10 @@ export default function ModulesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <button className={`p-2 rounded-lg ${mod.enabled ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-100'}`}>
+                  <button
+                    onClick={() => toggle(mod.id)}
+                    className={`p-2 rounded-lg ${mod.enabled ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-100'}`}
+                  >
                     {mod.enabled ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                   </button>
                 </td>

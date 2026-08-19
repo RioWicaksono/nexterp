@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Shield, Users, Edit2, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, Shield, Edit2, Trash2 } from 'lucide-react';
 
 const ROLES = [
   { id: '1', name: 'Super Admin', description: 'Full system access', permissions: ['*'], users: 1, system: true },
@@ -16,7 +16,7 @@ export default function RolesPage() {
   const [roles] = useState(ROLES);
 
   return (
-    <div className="space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Roles & Permissions</h1>
@@ -56,9 +56,6 @@ export default function RolesPage() {
                     {role.permissions.slice(0, 3).map(p => (
                       <span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-xs rounded text-slate-600 dark:text-slate-300">{p}</span>
                     ))}
-                    {role.permissions.length > 3 && (
-                      <span className="px-2 py-0.5 text-xs text-slate-400">+{role.permissions.length - 3}</span>
-                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-center">

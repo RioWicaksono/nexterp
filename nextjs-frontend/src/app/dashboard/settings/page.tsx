@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Bell, Shield, Palette, Save, Loader2 } from 'lucide-react';
+import { User, Bell, Shield, Palette, Save } from 'lucide-react';
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<'profile' | 'notifications' | 'security' | 'appearance'>('profile');
-  const [saving] = useState(false);
+  const [toggles, setToggles] = useState({ email: true, push: true, weekly: false });
+  const [theme, setTheme] = useState('system');
 
   const tabs = [
     { id: 'profile' as const, label: 'Profile', icon: User },
@@ -14,8 +15,14 @@ export default function SettingsPage() {
     { id: 'appearance' as const, label: 'Appearance', icon: Palette },
   ];
 
+  const themes = [
+    { value: 'light', label: 'Light', bg: 'bg-white', border: 'border-slate-300' },
+    { value: 'dark', label: 'Dark', bg: 'bg-slate-800', border: 'border-slate-600' },
+    { value: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-slate-800', border: 'border-slate-300' },
+  ];
+
   return (
-    <div className="space-y-4">
+    <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
         <p className="text-sm text-slate-500 mt-1">Manage your account and preferences</p>
@@ -34,6 +41,7 @@ export default function SettingsPage() {
             ))}
           </nav>
         </div>
+
         <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
           {tab === 'profile' && (
             <div className="space-y-6">
@@ -63,26 +71,31 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+
           {tab === 'notifications' && (
             <div className="space-y-4">
               <h3 className="font-semibold text-slate-900 dark:text-white">Notification Preferences</h3>
               {[
-                { key: 'email', label: 'Email Notifications', desc: 'Receive notifications via email' },
-                { key: 'push', label: 'Push Notifications', desc: 'Browser push notifications' },
-                { key: 'weekly', label: 'Weekly Digest', desc: 'Summary of weekly activity' },
+                { key: 'email' as keyof typeof toggles, label: 'Email Notifications', desc: 'Receive notifications via email' },
+                { key: 'push' as keyof typeof toggles, label: 'Push Notifications', desc: 'Browser push notifications' },
+                { key: 'weekly' as keyof typeof toggles, label: 'Weekly Digest', desc: 'Summary of weekly activity' },
               ].map(item => (
                 <div key={item.key} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
                   <div>
                     <p className="font-medium text-slate-900 dark:text-white">{item.label}</p>
                     <p className="text-sm text-slate-500">{item.desc}</p>
                   </div>
-                  <div className="w-11 h-6 bg-blue-600 rounded-full relative cursor-pointer">
-                    <span className="absolute top-0.5 left-5 w-5 h-5 bg-white rounded-full shadow" />
-                  </div>
+                  <button
+                    onClick={() => setToggles(p => ({ ...p, [item.key]: !p[item.key] }))}
+                    className={`relative w-11 h-6 rounded-full transition ${toggles[item.key] ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${toggles[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
                 </div>
               ))}
             </div>
           )}
+
           {tab === 'security' && (
             <div className="space-y-4">
               <h3 className="font-semibold text-slate-900 dark:text-white">Security Settings</h3>
@@ -113,23 +126,21 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+
           {tab === 'appearance' && (
             <div className="space-y-6">
               <h3 className="font-semibold text-slate-900 dark:text-white">Appearance</h3>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Theme</label>
                 <div className="flex gap-3">
-                  {[
-                    { value: 'light', label: 'Light', bg: 'bg-white', border: 'border-slate-300' },
-                    { value: 'dark', label: 'Dark', bg: 'bg-slate-800', border: 'border-slate-600' },
-                    { value: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-slate-800', border: 'border-slate-300' },
-                  ].map(theme => (
+                  {themes.map(t => (
                     <button
-                      key={theme.value}
-                      className={`flex-1 p-4 rounded-xl border-2 transition ${theme.border}`}
+                      key={t.value}
+                      onClick={() => setTheme(t.value)}
+                      className={`flex-1 p-4 rounded-xl border-2 transition ${theme === t.value ? 'border-blue-500' : 'border-transparent ' + t.border}`}
                     >
-                      <div className={`w-full h-12 rounded-lg mb-2 ${theme.bg} border ${theme.border}`} />
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{theme.label}</p>
+                      <div className={`w-full h-12 rounded-lg mb-2 ${t.bg} border ${t.border}`} />
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.label}</p>
                     </button>
                   ))}
                 </div>

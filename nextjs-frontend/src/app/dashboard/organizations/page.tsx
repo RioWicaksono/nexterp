@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Building2, MapPin, Phone, Mail, Edit2, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, Building2, MapPin, Phone, Mail, Edit2, Trash2 } from 'lucide-react';
 
 const ORGS = [
   { id: '1', name: 'Demo Corporation', code: 'DEMO', taxId: '01.234.567.8-901.000', email: 'admin@demo.com', phone: '+62 21 1234 5678', city: 'Jakarta Selatan', country: 'Indonesia', active: true, users: 8, modules: 5 },
@@ -11,7 +11,7 @@ export default function OrganizationsPage() {
   const [orgs] = useState(ORGS);
 
   return (
-    <div className="space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Organizations</h1>
