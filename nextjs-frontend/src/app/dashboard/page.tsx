@@ -29,12 +29,12 @@ export default function DashboardPage() {
   }, []);
 
   const cards = [
-    { label: 'Total Employees', value: stats.employees, icon: Users, color: 'blue-500', href: '/dashboard/hrm' },
-    { label: 'Inventory Items', value: stats.inventory, icon: Package, color: 'green-500', href: '/dashboard/inventory' },
-    { label: 'Purchase Orders', value: stats.orders, icon: ShoppingCart, color: 'orange-500', href: '/dashboard/purchasing' },
-    { label: 'Total Suppliers', value: stats.suppliers, icon: Building2, color: 'purple-500', href: '/dashboard/purchasing' },
-    { label: 'Active Projects', value: stats.projects, icon: Activity, color: 'cyan-500', href: '/dashboard/projects' },
-    { label: 'Chart of Accounts', value: stats.accounts, icon: DollarSign, color: 'emerald-500', href: '/dashboard/accounting' },
+    { label: 'Total Employees', value: stats.employees, icon: Users, bgClass: 'bg-blue-500', href: '/dashboard/hrm' },
+    { label: 'Inventory Items', value: stats.inventory, icon: Package, bgClass: 'bg-green-500', href: '/dashboard/inventory' },
+    { label: 'Purchase Orders', value: stats.orders, icon: ShoppingCart, bgClass: 'bg-orange-500', href: '/dashboard/purchasing' },
+    { label: 'Total Suppliers', value: stats.suppliers, icon: Building2, bgClass: 'bg-purple-500', href: '/dashboard/purchasing' },
+    { label: 'Active Projects', value: stats.projects, icon: Activity, bgClass: 'bg-cyan-500', href: '/dashboard/projects' },
+    { label: 'Chart of Accounts', value: stats.accounts, icon: DollarSign, bgClass: 'bg-emerald-500', href: '/dashboard/accounting' },
   ];
 
   return (
@@ -64,7 +64,7 @@ export default function DashboardPage() {
             className={`bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition group cursor-pointer`}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2.5 rounded-lg bg-${card.color}`}>
+              <div className={`p-2.5 rounded-lg ${card.bgClass}`}>
                 <card.icon className="w-5 h-5 text-white" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />

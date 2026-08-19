@@ -46,9 +46,10 @@ export default function AccountingPage() {
         setAccounts([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load accounts');
-      toast('error', 'Error', err.message || 'Failed to load accounts');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load accounts';
+      setError(msg);
+      toast('error', 'Error', msg);
       setAccounts([]);
     } finally {
       setLoading(false);
@@ -68,9 +69,10 @@ export default function AccountingPage() {
         setJournals([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load journal entries');
-      toast('error', 'Error', err.message || 'Failed to load journal entries');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load journal entries';
+      setError(msg);
+      toast('error', 'Error', msg);
       setJournals([]);
     } finally {
       setLoading(false);
@@ -130,8 +132,9 @@ export default function AccountingPage() {
       }
       setShowModal(false);
       fetchAccounts();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to save account');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save account';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -148,8 +151,9 @@ export default function AccountingPage() {
       toast('success', 'Deleted!', 'Account has been removed');
       setDeleteConfirm({ isOpen: false, accountId: null, accountName: '' });
       fetchAccounts();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to delete account');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete account';
+      toast('error', 'Error', msg);
     }
   };
 

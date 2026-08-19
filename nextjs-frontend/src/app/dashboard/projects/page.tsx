@@ -40,9 +40,10 @@ export default function ProjectsPage() {
         setProjects([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load projects');
-      toast('error', 'Error', err.message || 'Failed to load projects');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load projects';
+      setError(msg);
+      toast('error', 'Error', msg);
       setProjects([]);
     } finally {
       setLoading(false);
@@ -62,9 +63,10 @@ export default function ProjectsPage() {
         setTasks([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load tasks');
-      toast('error', 'Error', err.message || 'Failed to load tasks');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load tasks';
+      setError(msg);
+      toast('error', 'Error', msg);
       setTasks([]);
     } finally {
       setLoading(false);
@@ -102,8 +104,9 @@ export default function ProjectsPage() {
       setShowModal(false);
       setFormData({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' });
       fetchProjects();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to create project');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to create project';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -111,11 +114,16 @@ export default function ProjectsPage() {
 
   const handleAction = async (id: string, action: 'start' | 'complete') => {
     try {
-      await (projectsApi as any)[action](id);
+      if (action === 'start') {
+        await projectsApi.start(id);
+      } else {
+        await projectsApi.complete(id);
+      }
       toast('success', 'Updated!', `Project has been ${action === 'start' ? 'started' : 'completed'}`);
       fetchProjects();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || `Failed to ${action} project`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      toast('error', 'Error', msg);
     }
   };
 

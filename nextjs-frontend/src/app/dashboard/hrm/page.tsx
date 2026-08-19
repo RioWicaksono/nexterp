@@ -45,9 +45,10 @@ export default function HRMPage() {
         setEmployees([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load employees');
-      toast('error', 'Error', err.message || 'Failed to load employees');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load employees';
+      setError(msg);
+      toast('error', 'Error', msg);
     } finally {
       setLoading(false);
     }
@@ -106,8 +107,9 @@ export default function HRMPage() {
       }
       setShowModal(false);
       fetchEmployees();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to save employee');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save employee';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -124,8 +126,9 @@ export default function HRMPage() {
       toast('success', 'Deleted!', 'Employee has been removed');
       setDeleteConfirm({ isOpen: false, employeeId: null, employeeName: '' });
       fetchEmployees();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to delete employee');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete employee';
+      toast('error', 'Error', msg);
     }
   };
 
