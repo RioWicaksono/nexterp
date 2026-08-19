@@ -2,7 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { employeesApi, departmentsApi, type EmployeeDto, type DepartmentDto } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/useToast';
 import { Plus, Search, Edit2, Trash2, X, Loader2, ChevronLeft, ChevronRight, Building2, Users } from 'lucide-react';
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 export default function HRMPage() {
   const [employees, setEmployees] = useState<EmployeeDto[]>([]);
@@ -11,14 +17,20 @@ export default function HRMPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeDto | null>(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', departmentId: '' });
   const [saving, setSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const pageSize = 10;
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; employeeId: string | null; employeeName: string }>({
+    isOpen: false,
+    employeeId: null,
+    employeeName: '',
+  });
+
+  const toast = useToast();
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -28,15 +40,18 @@ export default function HRMPage() {
         setEmployees(result.data.items || []);
         setTotalCount(result.data.totalCount || 0);
         setTotalPages(Math.ceil((result.data.totalCount || 0) / pageSize));
+        setError(null);
       } else {
         setEmployees([]);
+        setTotalCount(0);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load employees');
+      toast('error', 'Error', err.message || 'Failed to load employees');
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, pageSize, search, toast]);
 
   const fetchDepartments = useCallback(async () => {
     try {
@@ -49,6 +64,17 @@ export default function HRMPage() {
 
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
   useEffect(() => { fetchDepartments(); }, [fetchDepartments]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        setShowModal(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showModal]);
 
   const openCreate = () => {
     setEditingEmployee(null);
@@ -73,40 +99,56 @@ export default function HRMPage() {
     try {
       if (editingEmployee) {
         await employeesApi.update(editingEmployee.id, formData);
+        toast('success', 'Updated!', 'Employee has been updated');
       } else {
         await employeesApi.create(formData);
+        toast('success', 'Created!', 'Employee has been added');
       }
       setShowModal(false);
       fetchEmployees();
     } catch (err: any) {
-      alert(err.message || 'Failed to save');
+      toast('error', 'Error', err.message || 'Failed to save employee');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const confirmDelete = (emp: EmployeeDto) => {
+    setDeleteConfirm({ isOpen: true, employeeId: emp.id, employeeName: `${emp.firstName} ${emp.lastName}` });
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm.employeeId) return;
     try {
-      await employeesApi.delete(id);
-      setDeleteConfirm(null);
+      await employeesApi.delete(deleteConfirm.employeeId);
+      toast('success', 'Deleted!', 'Employee has been removed');
+      setDeleteConfirm({ isOpen: false, employeeId: null, employeeName: '' });
       fetchEmployees();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete');
+      toast('error', 'Error', err.message || 'Failed to delete employee');
     }
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setPage(1);
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Human Resource Management</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage employees, departments, and positions</p>
-        </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-          <Plus className="w-4 h-4" /> Add Employee
-        </button>
-      </div>
+      <PageHeader
+        title="Human Resource Management"
+        subtitle="Manage employees, departments, and positions"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'HRM' },
+        ]}
+        actions={
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            <Plus className="w-4 h-4" /> Add Employee
+          </button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -146,7 +188,9 @@ export default function HRMPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
+          <div className="p-6">
+            <SkeletonLoader rows={5} height="h-12" />
+          </div>
         ) : error ? (
           <div className="p-6 text-red-500">{error}</div>
         ) : employees.length === 0 ? (
@@ -172,7 +216,7 @@ export default function HRMPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {employees.map((emp) => (
-                    <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                    <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                       <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{emp.firstName} {emp.lastName}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm">{emp.employeeNumber || '-'}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm">{emp.department || '-'}</td>
@@ -184,8 +228,8 @@ export default function HRMPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button onClick={() => openEdit(emp)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => setDeleteConfirm(emp.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded ml-1"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => openEdit(emp)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => confirmDelete(emp)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
                       </td>
                     </tr>
                   ))}
@@ -193,13 +237,28 @@ export default function HRMPage() {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <p className="text-sm text-slate-500">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount}</p>
+            {/* Pagination with Size Selector */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <span>Show</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+                <span>of {totalCount}</span>
+              </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50"><ChevronLeft className="w-4 h-4" /></button>
+                <p className="text-sm text-slate-500 mr-2">
+                  {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount}
+                </p>
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
                 <span className="text-sm font-medium px-3">{page} / {totalPages || 1}</span>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50"><ChevronRight className="w-4 h-4" /></button>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronRight className="w-4 h-4" /></button>
               </div>
             </div>
           </>
@@ -208,11 +267,11 @@ export default function HRMPage() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingEmployee ? 'Edit Employee' : 'Add Employee'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -242,8 +301,8 @@ export default function HRMPage() {
               </div>
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 flex gap-3 justify-end">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50">Cancel</button>
-              <button onClick={handleSave} disabled={saving || !formData.firstName || !formData.lastName} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving || !formData.firstName || !formData.lastName} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors">
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {editingEmployee ? 'Update' : 'Create'}
               </button>
@@ -252,19 +311,17 @@ export default function HRMPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Delete Employee?</h3>
-            <p className="text-slate-500 text-sm mb-4">This action cannot be undone.</p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 border border-slate-300 rounded-lg">Cancel</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Employee?"
+        message={`Are you sure you want to delete ${deleteConfirm.employeeName}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, employeeId: null, employeeName: '' })}
+        variant="danger"
+      />
     </div>
   );
 }

@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store';
 import { dashboardApi } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
+import { useToast } from '@/hooks/useToast';
 import {
   Users, Package, ShoppingCart, DollarSign, Building2,
-  ArrowUpRight, ArrowDownRight, Loader2, RefreshCw, Activity
+  ArrowUpRight, RefreshCw, Activity
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -24,14 +27,17 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const toast = useToast();
 
   const fetchStats = async () => {
     try {
       const result = await dashboardApi.getStats();
       if (result?.success && result.data) {
         setStats(result.data);
+        if (refreshing) {
+          toast('success', 'Updated!', 'Dashboard data refreshed');
+        }
       } else {
-        // Fallback to defaults if API returns empty
         setStats({
           totalEmployees: 0,
           totalInventoryItems: 0,
@@ -45,7 +51,6 @@ export default function DashboardPage() {
     } catch (err: any) {
       console.error('Failed to fetch stats:', err);
       setError('Failed to load dashboard data');
-      // Set defaults on error
       setStats({
         totalEmployees: 0,
         totalInventoryItems: 0,
@@ -55,6 +60,9 @@ export default function DashboardPage() {
         totalAccounts: 0,
         recentActivities: [],
       });
+      if (refreshing) {
+        toast('error', 'Error', err.message || 'Failed to refresh dashboard');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -90,33 +98,44 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="space-y-6">
+        <PageHeader
+          title={`Welcome back, ${user?.firstName || user?.fullName || 'User'}!`}
+          subtitle={new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          breadcrumbs={[
+            { label: 'Dashboard' },
+          ]}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+              <SkeletonLoader rows={1} height="h-12" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Welcome back, {user?.firstName || user?.fullName || 'User'}!
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
-            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${user?.firstName || user?.fullName || 'User'}!`}
+        subtitle={new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        breadcrumbs={[
+          { label: 'Dashboard' },
+        ]}
+        actions={
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        }
+      />
 
       {/* Error Banner */}
       {error && (
@@ -167,7 +186,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Module Overview */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Module Overview</h3>
           <div className="space-y-3">

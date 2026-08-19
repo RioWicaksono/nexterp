@@ -2,7 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { projectsApi, projectTasksApi, type ProjectDto, type ProjectTaskDto } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/useToast';
 import { Plus, Search, X, Loader2, ChevronLeft, ChevronRight, FolderKanban, CheckCircle2, Clock, Circle, AlertTriangle, PlayCircle, CheckCircle } from 'lucide-react';
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 export default function ProjectsPage() {
   const [activeTab, setActiveTab] = useState<'projects' | 'tasks'>('projects');
@@ -12,12 +18,14 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' });
   const [saving, setSaving] = useState(false);
-  const pageSize = 10;
+
+  const toast = useToast();
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -27,16 +35,19 @@ export default function ProjectsPage() {
         setProjects(result.data.items || []);
         setTotalCount(result.data.totalCount || 0);
         setTotalPages(Math.ceil((result.data.totalCount || 0) / pageSize));
+        setError(null);
       } else {
         setProjects([]);
+        setTotalCount(0);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load projects');
+      toast('error', 'Error', err.message || 'Failed to load projects');
       setProjects([]);
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, pageSize, search, toast]);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
@@ -46,21 +57,35 @@ export default function ProjectsPage() {
         setTasks(result.data.items || []);
         setTotalCount(result.data.totalCount || 0);
         setTotalPages(Math.ceil((result.data.totalCount || 0) / pageSize));
+        setError(null);
       } else {
         setTasks([]);
+        setTotalCount(0);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load tasks');
+      toast('error', 'Error', err.message || 'Failed to load tasks');
       setTasks([]);
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, pageSize, search, toast]);
 
   useEffect(() => {
     if (activeTab === 'projects') fetchProjects();
     else fetchTasks();
   }, [activeTab, fetchProjects, fetchTasks]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        setShowModal(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showModal]);
 
   const handleCreate = async () => {
     setSaving(true);
@@ -73,11 +98,12 @@ export default function ProjectsPage() {
         endDate: formData.endDate || undefined,
         budget: formData.budget ? Number(formData.budget) : undefined,
       });
+      toast('success', 'Created!', 'Project has been created');
       setShowModal(false);
       setFormData({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' });
       fetchProjects();
     } catch (err: any) {
-      alert(err.message || 'Failed to create project');
+      toast('error', 'Error', err.message || 'Failed to create project');
     } finally {
       setSaving(false);
     }
@@ -86,10 +112,27 @@ export default function ProjectsPage() {
   const handleAction = async (id: string, action: 'start' | 'complete') => {
     try {
       await (projectsApi as any)[action](id);
+      toast('success', 'Updated!', `Project has been ${action === 'start' ? 'started' : 'completed'}`);
       fetchProjects();
     } catch (err: any) {
-      alert(err.message || `Failed to ${action}`);
+      toast('error', 'Error', err.message || `Failed to ${action} project`);
     }
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setPage(1);
+  };
+
+  const handleTabChange = (tab: 'projects' | 'tasks') => {
+    setActiveTab(tab);
+    setPage(1);
+    setSearch('');
+  };
+
+  const openNewProjectModal = () => {
+    setFormData({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' });
+    setShowModal(true);
   };
 
   const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -106,25 +149,28 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Projects</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage projects and tasks</p>
-        </div>
-        {activeTab === 'projects' && (
-          <button onClick={() => { setFormData({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' }); setShowModal(true); }} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition">
-            <Plus className="w-4 h-4" /> New Project
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title="Projects"
+        subtitle="Manage projects and tasks"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Projects' },
+        ]}
+        actions={
+          activeTab === 'projects' ? (
+            <button onClick={openNewProjectModal} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition">
+              <Plus className="w-4 h-4" /> New Project
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg w-fit">
-        <button onClick={() => { setActiveTab('projects'); setPage(1); setSearch(''); }} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'projects' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+        <button onClick={() => handleTabChange('projects')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'projects' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
           <FolderKanban className="w-4 h-4" /> Projects
         </button>
-        <button onClick={() => { setActiveTab('tasks'); setPage(1); setSearch(''); }} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'tasks' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+        <button onClick={() => handleTabChange('tasks')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'tasks' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
           <CheckCircle2 className="w-4 h-4" /> Tasks
         </button>
       </div>
@@ -164,14 +210,16 @@ export default function ProjectsPage() {
         {/* Projects Table */}
         {activeTab === 'projects' && (
           loading ? (
-            <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-cyan-600" /></div>
+            <div className="p-6">
+              <SkeletonLoader rows={5} height="h-12" />
+            </div>
           ) : error ? (
             <div className="p-6 text-red-500">{error}</div>
           ) : projects.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-slate-400">
               <FolderKanban className="w-12 h-12 mb-2 opacity-50" />
               <p>No projects found</p>
-              <button onClick={() => setShowModal(true)} className="mt-3 text-cyan-600 hover:underline">Create your first project</button>
+              <button onClick={openNewProjectModal} className="mt-3 text-cyan-600 hover:underline">Create your first project</button>
             </div>
           ) : (
             <>
@@ -193,7 +241,7 @@ export default function ProjectsPage() {
                     {projects.map((proj) => {
                       const config = statusConfig[proj.status || 'Planning'] || statusConfig['Planning'];
                       return (
-                        <tr key={proj.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <tr key={proj.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                           <td className="px-4 py-3 font-mono text-sm font-medium text-slate-900 dark:text-white">{proj.code || proj.id.slice(0, 6)}</td>
                           <td className="px-4 py-3">
                             <div className="font-medium text-slate-900 dark:text-white">{proj.name}</div>
@@ -217,10 +265,10 @@ export default function ProjectsPage() {
                           </td>
                           <td className="px-4 py-3 text-center">
                             {(proj.status === 'Planning') && (
-                              <button onClick={() => handleAction(proj.id, 'start')} className="px-2 py-1 text-xs bg-cyan-100 text-cyan-700 rounded hover:bg-cyan-200">Start</button>
+                              <button onClick={() => handleAction(proj.id, 'start')} className="px-2 py-1 text-xs bg-cyan-100 text-cyan-700 rounded hover:bg-cyan-200 transition-colors">Start</button>
                             )}
                             {(proj.status === 'Active') && (
-                              <button onClick={() => handleAction(proj.id, 'complete')} className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200">Complete</button>
+                              <button onClick={() => handleAction(proj.id, 'complete')} className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">Complete</button>
                             )}
                           </td>
                         </tr>
@@ -230,12 +278,28 @@ export default function ProjectsPage() {
                 </table>
               </div>
 
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <p className="text-sm text-slate-500">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount}</p>
+              {/* Pagination with Size Selector */}
+              <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <span>Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>{size}</option>
+                    ))}
+                  </select>
+                  <span>of {totalCount}</span>
+                </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50"><ChevronLeft className="w-4 h-4" /></button>
+                  <p className="text-sm text-slate-500 mr-2">
+                    {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount}
+                  </p>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
                   <span className="text-sm font-medium px-3">{page} / {totalPages || 1}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50"><ChevronRight className="w-4 h-4" /></button>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronRight className="w-4 h-4" /></button>
                 </div>
               </div>
             </>
@@ -245,7 +309,9 @@ export default function ProjectsPage() {
         {/* Tasks Table */}
         {activeTab === 'tasks' && (
           loading ? (
-            <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-cyan-600" /></div>
+            <div className="p-6">
+              <SkeletonLoader rows={5} height="h-12" />
+            </div>
           ) : error ? (
             <div className="p-6 text-red-500">{error}</div>
           ) : tasks.length === 0 ? (
@@ -272,7 +338,7 @@ export default function ProjectsPage() {
                       const config = statusConfig[task.status || 'Todo'] || statusConfig['Todo'];
                       const priorityColors: Record<string, string> = { Low: 'text-slate-500', Medium: 'text-blue-500', High: 'text-orange-500', Critical: 'text-red-500' };
                       return (
-                        <tr key={task.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <tr key={task.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                           <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{task.title}</td>
                           <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm">{task.projectName || '-'}</td>
                           <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
@@ -299,12 +365,28 @@ export default function ProjectsPage() {
                 </table>
               </div>
 
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <p className="text-sm text-slate-500">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount}</p>
+              {/* Pagination with Size Selector */}
+              <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <span>Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                  >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>{size}</option>
+                    ))}
+                  </select>
+                  <span>of {totalCount}</span>
+                </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50"><ChevronLeft className="w-4 h-4" /></button>
+                  <p className="text-sm text-slate-500 mr-2">
+                    {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount}
+                  </p>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
                   <span className="text-sm font-medium px-3">{page} / {totalPages || 1}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50"><ChevronRight className="w-4 h-4" /></button>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronRight className="w-4 h-4" /></button>
                 </div>
               </div>
             </>
@@ -314,11 +396,11 @@ export default function ProjectsPage() {
 
       {/* Create Project Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">New Project</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div>
@@ -349,8 +431,8 @@ export default function ProjectsPage() {
               </div>
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 flex gap-3 justify-end">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 rounded-lg">Cancel</button>
-              <button onClick={handleCreate} disabled={saving || !formData.name} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+              <button onClick={handleCreate} disabled={saving || !formData.name} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors">
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}Create Project
               </button>
             </div>

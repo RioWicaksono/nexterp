@@ -2,7 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { stockItemsApi, warehousesApi, type StockItemDto, type WarehouseDto } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/useToast';
 import { Plus, Search, Edit2, Trash2, X, Loader2, ChevronLeft, ChevronRight, Package, Warehouse as WarehouseIcon } from 'lucide-react';
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 export default function InventoryPage() {
   const [items, setItems] = useState<StockItemDto[]>([]);
@@ -11,14 +17,20 @@ export default function InventoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<StockItemDto | null>(null);
   const [formData, setFormData] = useState({ name: '', code: '', barcode: '', standardCost: '', standardPrice: '', reorderLevel: '' });
   const [saving, setSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const pageSize = 10;
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; itemId: string | null; itemName: string }>({
+    isOpen: false,
+    itemId: null,
+    itemName: '',
+  });
+
+  const toast = useToast();
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -28,15 +40,18 @@ export default function InventoryPage() {
         setItems(result.data.items || []);
         setTotalCount(result.data.totalCount || 0);
         setTotalPages(Math.ceil((result.data.totalCount || 0) / pageSize));
+        setError(null);
       } else {
         setItems([]);
+        setTotalCount(0);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load items');
+      toast('error', 'Error', err.message || 'Failed to load inventory items');
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, pageSize, search, toast]);
 
   const fetchWarehouses = useCallback(async () => {
     try {
@@ -49,6 +64,17 @@ export default function InventoryPage() {
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
   useEffect(() => { fetchWarehouses(); }, [fetchWarehouses]);
+
+  // Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        setShowModal(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showModal]);
 
   const openCreate = () => {
     setEditingItem(null);
@@ -82,40 +108,56 @@ export default function InventoryPage() {
       };
       if (editingItem) {
         await stockItemsApi.update(editingItem.id, data);
+        toast('success', 'Updated!', 'Stock item has been updated');
       } else {
         await stockItemsApi.create(data);
+        toast('success', 'Created!', 'Stock item has been added');
       }
       setShowModal(false);
       fetchItems();
     } catch (err: any) {
-      alert(err.message || 'Failed to save');
+      toast('error', 'Error', err.message || 'Failed to save item');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const confirmDelete = (item: StockItemDto) => {
+    setDeleteConfirm({ isOpen: true, itemId: item.id, itemName: item.name || 'this item' });
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm.itemId) return;
     try {
-      await stockItemsApi.delete(id);
-      setDeleteConfirm(null);
+      await stockItemsApi.delete(deleteConfirm.itemId);
+      toast('success', 'Deleted!', 'Stock item has been removed');
+      setDeleteConfirm({ isOpen: false, itemId: null, itemName: '' });
       fetchItems();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete');
+      toast('error', 'Error', err.message || 'Failed to delete item');
     }
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setPage(1);
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Inventory Management</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage stock items, warehouses, and inventory levels</p>
-        </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
-          <Plus className="w-4 h-4" /> Add Item
-        </button>
-      </div>
+      <PageHeader
+        title="Inventory Management"
+        subtitle="Manage stock items, warehouses, and inventory levels"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Inventory' },
+        ]}
+        actions={
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
+            <Plus className="w-4 h-4" /> Add Item
+          </button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -155,7 +197,9 @@ export default function InventoryPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
+          <div className="p-6">
+            <SkeletonLoader rows={5} height="h-12" />
+          </div>
         ) : error ? (
           <div className="p-6 text-red-500">{error}</div>
         ) : items.length === 0 ? (
@@ -182,7 +226,7 @@ export default function InventoryPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {items.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                    <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                       <td className="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">{item.code}</td>
                       <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{item.name}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm font-mono">{item.barcode || '-'}</td>
@@ -195,8 +239,8 @@ export default function InventoryPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button onClick={() => openEdit(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded ml-1"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => openEdit(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => confirmDelete(item)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-1"><Trash2 className="w-4 h-4" /></button>
                       </td>
                     </tr>
                   ))}
@@ -204,12 +248,28 @@ export default function InventoryPage() {
               </table>
             </div>
 
-            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <p className="text-sm text-slate-500">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount}</p>
+            {/* Pagination with Size Selector */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <span>Show</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+                <span>of {totalCount}</span>
+              </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50"><ChevronLeft className="w-4 h-4" /></button>
+                <p className="text-sm text-slate-500 mr-2">
+                  {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount}
+                </p>
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
                 <span className="text-sm font-medium px-3">{page} / {totalPages || 1}</span>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50"><ChevronRight className="w-4 h-4" /></button>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"><ChevronRight className="w-4 h-4" /></button>
               </div>
             </div>
           </>
@@ -218,11 +278,11 @@ export default function InventoryPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingItem ? 'Edit Item' : 'Add Stock Item'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div>
@@ -255,8 +315,8 @@ export default function InventoryPage() {
               </div>
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 flex gap-3 justify-end">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50">Cancel</button>
-              <button onClick={handleSave} disabled={saving || !formData.name || !formData.code} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving || !formData.name || !formData.code} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors">
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {editingItem ? 'Update' : 'Create'}
               </button>
@@ -265,19 +325,17 @@ export default function InventoryPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Delete Item?</h3>
-            <p className="text-slate-500 text-sm mb-4">This action cannot be undone.</p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 border border-slate-300 rounded-lg">Cancel</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Item?"
+        message={`Are you sure you want to delete ${deleteConfirm.itemName}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, itemId: null, itemName: '' })}
+        variant="danger"
+      />
     </div>
   );
 }
