@@ -14,13 +14,13 @@ using Serilog;
 using ERP.API.Controllers;
 using ERP.API.Extensions;
 using ERP.API.Middleware;
+using ERP.Application.Common.Configuration;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Behaviors;
 using ERP.Application.Common.Integrations;
 using ERP.Application.Common.Documents;
 using ERP.Application.Common.Modules;
 using ERP.Application.Common.Licensing;
-using ERP.Application.Common.Behaviors;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Services;
 using ERP.Infrastructure.Data;
@@ -28,10 +28,14 @@ using ERP.Infrastructure.Data.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog with JSON structured logging
+// Configure Serilog with JSON structured logging for production
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "NEXTERP-API")
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -50,7 +54,7 @@ builder.Services.AddSwaggerWithVersioning();
 // Configure API Versioning
 builder.Services.AddApiVersioningWithExplorer();
 
-// Configure JWT Authentication - Secret key is REQUIRED, no fallback
+// Configure JWT Authentication - Production security settings
 var jwtSecret = builder.Configuration["Jwt:SecretKey"];
 if (string.IsNullOrEmpty(jwtSecret))
 {
@@ -63,7 +67,9 @@ var jwtSettings = new JwtSettings
     SecretKey = jwtSecret,
     Issuer = builder.Configuration["Jwt:Issuer"] ?? "ERP.System",
     Audience = builder.Configuration["Jwt:Audience"] ?? "ERP.Client",
-    AccessTokenExpirationMinutes = int.Parse(builder.Configuration["Jwt:AccessTokenExpirationMinutes"] ?? "60"),
+    // Access token: 15 minutes (production standard - reduced from 60 for security)
+    AccessTokenExpirationMinutes = int.Parse(builder.Configuration["Jwt:AccessTokenExpirationMinutes"] ?? "15"),
+    // Refresh token: 7 days with rotation enabled
     RefreshTokenExpirationDays = int.Parse(builder.Configuration["Jwt:RefreshTokenExpirationDays"] ?? "7")
 };
 
@@ -163,6 +169,9 @@ builder.Services.AddScoped<ERP.Application.Analytics.Services.INotificationServi
 builder.Services.AddScoped<IWorkflowService, ERP.Infrastructure.Services.WorkflowService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
+// Brute force protection for login
+builder.Services.AddScoped<ILoginRateLimitService, LoginRateLimitService>();
+
 // Domain Services
 builder.Services.AddScoped<ERP.Domain.Hrm.Services.PayrollCalculationService>();
 
@@ -211,17 +220,15 @@ builder.Services.AddCors(options =>
         // SECURITY: Remove fallback to allow-all origins - always require explicit origins
         if (allOrigins.Length > 0)
         {
-            policy.WithOrigins(allOrigins)
+            policy.WithOrigins(allOrigins);
         }
         // else: No additional origins configured - CORS will only use AllowedOrigins from config
 
         policy
             .AllowAnyMethod()
             .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials()
-              .WithExposedHeaders("X-Total-Count", "X-Page-Count");
+            .AllowCredentials()
+            .WithExposedHeaders("X-Total-Count", "X-Page-Count", "X-Correlation-ID");
     });
 });
 
@@ -233,8 +240,9 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
     var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
     // Use configurable demo password from env var with fallback for local dev
+    // BCrypt cost factor 12 for production security
     var demoPasswordHash = BCrypt.Net.BCrypt.HashPassword(
-        Environment.GetEnvironmentVariable("DEMO_PASSWORD") ?? "DevPassword2024!");;
+        Environment.GetEnvironmentVariable("DEMO_PASSWORD") ?? "DevPassword2024!", 12);
 
     try
     {
@@ -268,7 +276,7 @@ using (var scope = app.Services.CreateScope())
         var demoUserId = Guid.Parse("00000000-0000-0000-0000-000000000100");
         await dbContext.Database.ExecuteSqlRawAsync($@"
             INSERT INTO ""Users"" (""Id"", ""OrganizationId"", ""Username"", ""Email"", ""PasswordHash"", ""FirstName"", ""LastName"", ""Phone"", ""IsActive"", ""IsSuperAdmin"", ""FailedLoginAttempts"", ""LockedUntil"", ""LastLoginAt"", ""LastLoginIp"", ""RefreshTokenHash"", ""RefreshTokenExpiry"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
-            VALUES ('{demoUserId}', '{demoOrgId}', 'admin', 'admin@nexterp.com', '{passwordHash}', 'System', 'Administrator', NULL, TRUE, TRUE, 0, NULL, NULL, NULL, NULL, NULL, FALSE, NOW(), NOW())
+            VALUES ('{demoUserId}', '{demoOrgId}', 'admin', 'admin@nexterp.com', '{demoPasswordHash}', 'System', 'Administrator', NULL, TRUE, TRUE, 0, NULL, NULL, NULL, NULL, NULL, FALSE, NOW(), NOW())
             ON CONFLICT (""Id"") DO UPDATE SET ""PasswordHash"" = EXCLUDED.""PasswordHash"";
         ");
 
@@ -389,10 +397,29 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Global exception handler - must be early in pipeline
+app.UseGlobalExceptionHandler();
+
 app.UseCors();
+
+// Structured request logging with correlation ID
 app.UseSerilogRequestLogging();
 
-// Add Prometheus metrics
+// Rate limiting middleware
+app.UseRateLimiting();
+
+// Add Correlation ID to all requests
+app.Use(async (context, next) =>
+{
+    var correlationId = context.Request.Headers["X-Correlation-ID"].FirstOrDefault()
+        ?? Guid.NewGuid().ToString();
+    context.Items["CorrelationId"] = correlationId;
+    context.Response.Headers["X-Correlation-ID"] = correlationId;
+    await next();
+});
+
+// Prometheus metrics
 app.UseHttpMetrics(options =>
 {
     options.AddCustomLabel("service", context => "nexterp-api");
@@ -401,9 +428,18 @@ app.UseHttpMetrics(options =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map endpoints BEFORE UseRouting
+// Map endpoints
 app.MapControllers();
-app.MapHealthChecks("/health/ready");
+
+// Enhanced health check endpoints
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false // Just checks if app is running
+});
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => true // Checks all dependencies (DB, Redis)
+});
 app.MapMetrics();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";

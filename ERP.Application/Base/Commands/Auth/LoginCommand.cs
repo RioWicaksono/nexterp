@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Base;
+using ERP.Application.Common.Configuration;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.Base.DTOs;
 using ERP.Domain.Base;
@@ -25,29 +26,36 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
 	public LoginCommandValidator()
 	{
 		RuleFor(x => x.Username)
-			.NotEmpty().WithMessage("Username is required");
+			.NotEmpty().WithMessage("Username is required")
+			.MinimumLength(3).WithMessage("Username must be at least 3 characters");
 
 		RuleFor(x => x.Password)
-			.NotEmpty().WithMessage("Password is required");
+			.NotEmpty().WithMessage("Password is required")
+			.MinimumLength(6).WithMessage("Password must be at least 6 characters");
 	}
 }
 
 /// <summary>
-/// Handler for LoginCommand
+/// Handler for LoginCommand with refresh token rotation
 /// </summary>
 public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginResponseDto>>
 {
 	private readonly IApplicationDbContext _context;
 	private readonly IJwtService _jwtService;
+	private readonly JwtSettings _jwtSettings;
 
 	// Dummy password hash for timing attack prevention
-	// This is used when user doesn't exist so we still perform hash verification
-	private const string DummyPasswordHash = "$2a$11$KasandraSecurityDummyHashForTimingPrevention";
+	// BCrypt cost factor 12 for production security
+	private const string DummyPasswordHash = "$2a$12$KasandraSecurityDummyHashForTimingPrevention";
 
-	public LoginCommandHandler(IApplicationDbContext context, IJwtService jwtService)
+	public LoginCommandHandler(
+		IApplicationDbContext context,
+		IJwtService jwtService,
+		JwtSettings jwtSettings)
 	{
 		_context = context;
 		_jwtService = jwtService;
+		_jwtSettings = jwtSettings;
 	}
 
 	public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -111,12 +119,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 
 		// Generate tokens with roles and permissions
 		var (accessToken, expiresAt) = _jwtService.GenerateAccessToken(user, rolePermissions);
+		var refreshToken = _jwtService.GenerateRefreshToken();
 
-		// Add role claims to JWT
+		// Store refresh token hash in database (rotation enabled)
+		var refreshExpiry = TimeSpan.FromDays(_jwtSettings.RefreshTokenExpirationDays);
+		await StoreRefreshTokenAsync(user.Id, refreshToken, refreshExpiry, cancellationToken);
+
 		var response = new LoginResponseDto
 		{
 			AccessToken = accessToken,
-			RefreshToken = _jwtService.GenerateRefreshToken(),
+			RefreshToken = refreshToken,
 			ExpiresAt = expiresAt,
 			User = new UserDto
 			{
@@ -135,5 +147,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 		};
 
 		return Result<LoginResponseDto>.Success(response);
+	}
+
+	private async Task StoreRefreshTokenAsync(Guid userId, string refreshToken, TimeSpan expiry, CancellationToken cancellationToken)
+	{
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+		if (user != null)
+		{
+			user.SetRefreshToken(refreshToken, expiry);
+			await _context.SaveChangesAsync(cancellationToken);
+		}
 	}
 }

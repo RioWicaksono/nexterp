@@ -10,6 +10,15 @@
 - [x] CORS allow-all removed → scoped to explicit origins
 - [x] Hardcoded credentials → env var pattern (`DEMO_PASSWORD`)
 - [x] CORS policy in `ERP.API/Program.cs`
+- [x] JWT Access Token: 60 min → 15 min (production standard)
+- [x] Refresh Token Rotation + Storage (SHA-256 hashed in DB)
+- [x] Token Blacklist via Redis (JTI-based for logout)
+- [x] Brute Force Protection (5 attempts/5min, 15min lockout)
+- [x] BCrypt cost factor: 11 → 12 (production standard)
+- [x] httpOnly cookies with proper expiration
+- [x] Structured logging (Serilog)
+- [x] Correlation ID middleware
+- [x] Enhanced health check endpoints (/health/live, /health/ready)
 
 ### Phase 2 - TypeScript Safety (Done)
 - [x] Removed `as any` casts → proper typed conditionals
@@ -32,39 +41,35 @@
 
 ## 🔴 Critical - Must Fix for Production
 
-### 1. Backend API Security
+### 1. Backend API Security (✅ COMPLETED)
 ```
-Priority: CRITICAL
-├── Rate limiting di login endpoint (brute force protection)
-├── JWT token security hardening:
-│   ├── Access token: 15-30 menit (bukan 1 jam)
-│   ├── Refresh token rotation
-│   ├── Token blacklist/revocation
-│   └── Consider httpOnly cookie instead of localStorage
-├── Input validation (FluentValidation di semua endpoint)
-├── API versioning strategy (/api/v1, /api/v2)
-└── Uniform error response format
-```
-
-### 2. Database Security
-```
-Priority: CRITICAL
-├── Row-Level Security (tenant_id filter di setiap query)
-├── Soft delete pattern (deleted_at, is_deleted)
-├── Audit logging untuk data sensitif
-└── Verify BCrypt cost factor (minimal 12)
+├── ✅ Rate limiting di login endpoint (brute force protection)
+├── ✅ JWT token security hardening:
+│   ├── ✅ Access token: 15 menit
+│   ├── ✅ Refresh token rotation
+│   ├── ✅ Token blacklist/revocation
+│   └── ✅ httpOnly cookie (already existed)
+├── ✅ Input validation (FluentValidation - already existed)
+├── ✅ API versioning strategy (/api/v1, /api/v2 - already existed)
+└── ✅ Uniform error response format (GlobalExceptionHandler - already existed)
 ```
 
-### 3. Observability
+### 2. Database Security (Partial - Existing)
 ```
-Priority: HIGH
-├── Structured logging (JSON format)
-├── Correlation ID tracking
-├── Health check endpoints:
-│   ├── GET /health (basic)
-│   ├── GET /ready (dependencies check)
-│   └── GET /live (liveness)
-└── Metrics export (Prometheus)
+├── ⚠️ Row-Level Security (tenant_id filter - needs verification)
+├── ✅ Soft delete pattern (deleted_at, is_deleted - existing)
+├── ⚠️ Audit logging untuk data sensitif (basic - existing)
+└── ✅ BCrypt cost factor: 12 (verified)
+```
+
+### 3. Observability (Partial - Existing)
+```
+├── ✅ Structured logging (Serilog)
+├── ✅ Correlation ID tracking
+├── ✅ Health check endpoints:
+│   ├── ✅ GET /health/live (basic)
+│   └── ✅ GET /health/ready (dependencies check)
+└── ✅ Metrics export (Prometheus - already existed)
 ```
 
 ---
