@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:api": "playwright test tests/api.spec.ts",
+    "test:auth": "playwright test tests/auth.spec.ts",
+    "test:dashboard": "playwright test tests/dashboard.spec.ts",
+    "test:ci": "playwright test --reporter=html,junit",
+    "test:install": "playwright install --with-deps",
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
@@ -21,6 +30,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

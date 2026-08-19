@@ -1,50 +1,51 @@
-# NEXTERP Backend - Dockerfile for Railway
+# NEXTERP API - Development Dockerfile
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project files (relative to ERP.API folder)
-COPY ["ERP.API.csproj", "."]
-COPY ["../../ERP.Application/ERP.Application.csproj", "../ERP.Application/"]
-COPY ["../../ERP.Domain/ERP.Domain.csproj", "../ERP.Domain/"]
-COPY ["../../ERP.Infrastructure/ERP.Infrastructure.csproj", "../ERP.Infrastructure/"]
+# Copy solution and project files first for better caching
+COPY ["*.sln", "./"]
+COPY ["ERP.API/*.csproj", "ERP.API/"]
+COPY ["ERP.Application/*.csproj", "ERP.Application/"]
+COPY ["ERP.Domain/*.csproj", "ERP.Domain/"]
+COPY ["ERP.Infrastructure/*.csproj", "ERP.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "./ERP.API.csproj"
+RUN dotnet restore
 
-# Copy all source code
+# Copy source code
 COPY . .
 
 # Build
-WORKDIR "/src"
-RUN dotnet build "ERP.API/ERP.API.csproj" -c Release -o /app/build
+WORKDIR "/src/ERP.API"
+RUN dotnet build -c Release -o /app/build
+
+# Run tests
+# RUN dotnet test --no-build
 
 # Publish
 FROM build AS publish
-RUN dotnet publish "ERP.API/ERP.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c Release -o /app/publish
 
 # Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Install curl for healthcheck
+# Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Create uploads directory
-RUN mkdir -p /app/uploads
+# Create non-root user
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
 
 # Copy published app
 COPY --from=publish /app/publish .
 
-# Set environment
-ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Production
-
-# Expose ports
-EXPOSE 8080
+# Expose port
+EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health/live || exit 1
 
-# Run the application
+# Entry point
 ENTRYPOINT ["dotnet", "ERP.API.dll"]
