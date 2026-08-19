@@ -8,7 +8,11 @@ const ORGS = [
 ];
 
 export default function OrganizationsPage() {
-  const [orgs] = useState(ORGS);
+  const [orgs, setOrgs] = useState(ORGS);
+
+  const handleDelete = (id: string) => {
+    setOrgs(prev => prev.filter(o => o.id !== id));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -21,6 +25,7 @@ export default function OrganizationsPage() {
           <Plus className="w-4 h-4" /> Add Organization
         </button>
       </div>
+
       <div className="grid gap-4">
         {orgs.map(org => (
           <div key={org.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
@@ -53,8 +58,12 @@ export default function OrganizationsPage() {
                   <p className="text-lg font-bold text-slate-900 dark:text-white">{org.modules}</p>
                   <p className="text-xs text-slate-500">Modules</p>
                 </div>
-                <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleDelete(org.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>

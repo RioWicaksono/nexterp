@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Shield, Check, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const MODULES = [
   { id: '1', name: 'Human Resource Management', code: 'HRM', description: 'Employee, attendance, payroll', enabled: true },
@@ -15,25 +16,26 @@ const MODULES = [
 
 export default function ModulesPage() {
   const [items, setItems] = useState(MODULES);
+  const router = useRouter();
 
   const toggle = (id: string) => {
     setItems(prev => prev.map(m => m.id === id ? { ...m, enabled: !m.enabled } : m));
+    router.refresh();
   };
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Modules</h1>
-          <p className="text-sm text-slate-500 mt-1">{items.filter(m => m.enabled).length} of {items.length} enabled</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Modules</h1>
+        <p className="text-sm text-slate-500 mt-1">{items.filter(m => m.enabled).length} of {items.length} modules enabled</p>
       </div>
+
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-slate-700/50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Module</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Description</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Code</th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Status</th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Toggle</th>
             </tr>

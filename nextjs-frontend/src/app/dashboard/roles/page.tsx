@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Shield, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Shield, Edit2, Trash2, X } from 'lucide-react';
 
 const ROLES = [
   { id: '1', name: 'Super Admin', description: 'Full system access', permissions: ['*'], users: 1, system: true },
@@ -13,7 +13,12 @@ const ROLES = [
 ];
 
 export default function RolesPage() {
-  const [roles] = useState(ROLES);
+  const [roles, setRoles] = useState(ROLES);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => {
+    setRoles(prev => prev.filter(r => r.id !== id));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -26,6 +31,7 @@ export default function RolesPage() {
           <Plus className="w-4 h-4" /> Add Role
         </button>
       </div>
+
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-slate-700/50">
@@ -56,6 +62,9 @@ export default function RolesPage() {
                     {role.permissions.slice(0, 3).map(p => (
                       <span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-xs rounded text-slate-600 dark:text-slate-300">{p}</span>
                     ))}
+                    {role.permissions.length > 3 && (
+                      <span className="px-2 py-0.5 text-xs text-slate-400">+{role.permissions.length - 3}</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -67,9 +76,13 @@ export default function RolesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Edit2 className="w-4 h-4" /></button>
+                  <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
                   {!role.system && (
-                    <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(role.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   )}
                 </td>
               </tr>

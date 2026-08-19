@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { User, Bell, Shield, Palette, Save } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 export default function SettingsPage() {
+  const toast = useToast();
   const [tab, setTab] = useState<'profile' | 'notifications' | 'security' | 'appearance'>('profile');
   const [toggles, setToggles] = useState({ email: true, push: true, weekly: false });
   const [theme, setTheme] = useState('system');
+  const [compact, setCompact] = useState(false);
+  const [profile, setProfile] = useState({ firstName: 'System', lastName: 'Administrator', email: 'admin@nexterp.com', phone: '' });
 
   const tabs = [
     { id: 'profile' as const, label: 'Profile', icon: User },
@@ -15,11 +19,13 @@ export default function SettingsPage() {
     { id: 'appearance' as const, label: 'Appearance', icon: Palette },
   ];
 
-  const themes = [
-    { value: 'light', label: 'Light', bg: 'bg-white', border: 'border-slate-300' },
-    { value: 'dark', label: 'Dark', bg: 'bg-slate-800', border: 'border-slate-600' },
-    { value: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-slate-800', border: 'border-slate-300' },
-  ];
+  const handleSave = (section: string) => {
+    toast('success', 'Saved!', `${section} settings updated`);
+  };
+
+  const handleToggle = (key: keyof typeof toggles) => {
+    setToggles(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -27,6 +33,7 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
         <p className="text-sm text-slate-500 mt-1">Manage your account and preferences</p>
       </div>
+
       <div className="flex gap-6">
         <div className="w-44 shrink-0">
           <nav className="space-y-0.5">
@@ -49,23 +56,23 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
-                  <input type="text" defaultValue="System" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
+                  <input type="text" value={profile.firstName} onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-                  <input type="text" defaultValue="Administrator" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
+                  <input type="text" value={profile.lastName} onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                  <input type="email" defaultValue="admin@nexterp.com" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
+                  <input type="email" value={profile.email} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
-                  <input type="text" placeholder="+62 xxx xxxx xxxx" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
+                  <input type="text" value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} placeholder="+62 xxx xxxx xxxx" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm" />
                 </div>
               </div>
               <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
-                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
+                <button onClick={() => handleSave('Profile')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
                   <Save className="w-4 h-4" />Save Changes
                 </button>
               </div>
@@ -86,13 +93,18 @@ export default function SettingsPage() {
                     <p className="text-sm text-slate-500">{item.desc}</p>
                   </div>
                   <button
-                    onClick={() => setToggles(p => ({ ...p, [item.key]: !p[item.key] }))}
+                    onClick={() => handleToggle(item.key)}
                     className={`relative w-11 h-6 rounded-full transition ${toggles[item.key] ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
                   >
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${toggles[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </button>
                 </div>
               ))}
+              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button onClick={() => handleSave('Notification')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
+                  <Save className="w-4 h-4" />Save Preferences
+                </button>
+              </div>
             </div>
           )}
 
@@ -124,6 +136,15 @@ export default function SettingsPage() {
                   <button className="px-3 py-1.5 border border-slate-300 text-red-600 rounded-lg text-sm hover:bg-red-50">Disable</button>
                 </div>
               </div>
+              <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-900 dark:text-white">Active Sessions</p>
+                    <p className="text-sm text-slate-500">1 active session</p>
+                  </div>
+                  <button className="px-3 py-1.5 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50">Sign out all</button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -133,7 +154,11 @@ export default function SettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Theme</label>
                 <div className="flex gap-3">
-                  {themes.map(t => (
+                  {[
+                    { value: 'light', label: 'Light', bg: 'bg-white', border: 'border-slate-300' },
+                    { value: 'dark', label: 'Dark', bg: 'bg-slate-800', border: 'border-slate-600' },
+                    { value: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-slate-800', border: 'border-slate-300' },
+                  ].map(t => (
                     <button
                       key={t.value}
                       onClick={() => setTheme(t.value)}
@@ -144,6 +169,23 @@ export default function SettingsPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className="flex items-center justify-between py-3 border-t border-slate-100 dark:border-slate-700">
+                <div>
+                  <p className="font-medium text-slate-900 dark:text-white">Compact Mode</p>
+                  <p className="text-sm text-slate-500">Reduce spacing for denser UI</p>
+                </div>
+                <button
+                  onClick={() => setCompact(c => !c)}
+                  className={`relative w-11 h-6 rounded-full transition ${compact ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${compact ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button onClick={() => handleSave('Appearance')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
+                  <Save className="w-4 h-4" />Save Preferences
+                </button>
               </div>
             </div>
           )}
