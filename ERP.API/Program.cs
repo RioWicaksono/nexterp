@@ -1,9 +1,11 @@
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Prometheus;
 using StackExchange.Redis;
 using Serilog;
+using ERP.API.Authentication;
 using ERP.API.Controllers;
 using ERP.API.Extensions;
 using ERP.API.Middleware;
@@ -108,6 +111,45 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// API Key Authentication for external integrations
+var apiKeyOptions = new ERP.API.Authentication.ApiKeyAuthenticationOptions();
+
+// Load API keys from configuration
+var apiKeysSection = builder.Configuration.GetSection("ApiKeys");
+if (apiKeysSection.Exists())
+{
+    foreach (var section in apiKeysSection.GetChildren())
+    {
+        var clientId = section["ClientId"];
+        var key = section["Key"];
+        var permissions = section.GetSection("Permissions").Get<string[]>() ?? Array.Empty<string>();
+
+        if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(key))
+        {
+            apiKeyOptions.ApiKeys.AddApiKey(clientId, key, permissions);
+        }
+    }
+}
+
+// Add API Key scheme (with fallback for demo)
+if (apiKeyOptions.ApiKeys.Count == 0)
+{
+    // Add demo API key for testing
+    apiKeyOptions.ApiKeys.AddApiKey(
+        "demo-client",
+        builder.Configuration["DemoApiKey"] ?? "demo-api-key-for-testing-only",
+        "reports.read", "analytics.dashboard.read");
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddScheme<ERP.API.Authentication.ApiKeyAuthenticationOptions, ERP.API.Authentication.ApiKeyAuthenticationHandler>(
+    "ApiKey",
+    opts => { opts.ApiKeys = apiKeyOptions.ApiKeys; });
+
 // Add health checks
 builder.Services.AddHealthChecks()
     .AddNpgSql(
@@ -135,6 +177,10 @@ builder.Services.AddDbContext<ERPDbContext>(options =>
         npgsql.CommandTimeout(30);
     });
 });
+
+// Data Masking Service for GDPR/PIV compliance
+builder.Services.AddScoped<ERP.Application.Common.Security.IDataMaskingService>(sp =>
+    new ERP.Application.Common.Security.DataMaskingService());
 
 // Add Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -204,6 +250,31 @@ builder.Services.AddScoped<ILicenseAuditService>(sp =>
 
 // License Validation Pipeline
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LicenseValidationBehavior<,>));
+
+// Response Compression (Gzip/Brotli)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/json",
+        "application/xml",
+        "text/plain",
+        "text/html"
+    });
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -406,6 +477,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Response Compression - must be early in pipeline
+app.UseResponseCompression();
+
+// API Audit Logging - logs all requests/responses
+app.UseApiAuditLogging();
 
 // Global exception handler - must be early in pipeline
 app.UseGlobalExceptionHandler();
