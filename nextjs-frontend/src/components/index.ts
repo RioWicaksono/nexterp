@@ -15,3 +15,5 @@ export type { Column } from './DataTable';
 export { PageHeader } from './PageHeader';
 
 export { SkeletonLoader } from './SkeletonLoader';
+
+export { ErrorBoundary } from './ErrorBoundary';
