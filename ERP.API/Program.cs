@@ -21,6 +21,7 @@ using ERP.Application.Common.Integrations;
 using ERP.Application.Common.Documents;
 using ERP.Application.Common.Modules;
 using ERP.Application.Common.Licensing;
+using ERP.Application.Common.Reports;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Services;
 using ERP.Infrastructure.Data;
@@ -149,6 +150,8 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(IApplicationDbContext).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    cfg.AddOpenBehavior(typeof(ModuleAuthorizationBehavior<,>));
+    cfg.AddOpenBehavior(typeof(PermissionAuthorizationBehavior<,>));
 });
 
 // Add FluentValidation
@@ -171,6 +174,12 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 // Brute force protection for login
 builder.Services.AddScoped<ILoginRateLimitService, LoginRateLimitService>();
+
+// Redis caching service
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+// Export service
+builder.Services.AddScoped<IExportService, ExportService>();
 
 // Domain Services
 builder.Services.AddScoped<ERP.Domain.Hrm.Services.PayrollCalculationService>();

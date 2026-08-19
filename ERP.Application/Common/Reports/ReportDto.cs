@@ -14,7 +14,7 @@ public record GenerateReportRequest(
 /// <summary>
 /// Report export format.
 /// </summary>
-public enum ExportFormat
+public enum ReportExportFormat
 {
     Pdf,
     Excel,

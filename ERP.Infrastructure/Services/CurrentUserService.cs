@@ -4,7 +4,7 @@ using ERP.Domain.Base;
 namespace ERP.Infrastructure.Services;
 
 /// <summary>
-/// Current user service implementation
+/// Current user service implementation with permission checking
 /// </summary>
 public class CurrentUserService : ERP.Application.Common.Interfaces.ICurrentUserService
 {
@@ -61,5 +61,17 @@ public class CurrentUserService : ERP.Application.Common.Interfaces.ICurrentUser
     {
         if (IsSuperAdmin) return true;
         return Permissions.Contains(permission);
+    }
+
+    public bool HasAllPermissions(params string[] permissions)
+    {
+        if (IsSuperAdmin) return true;
+        return permissions.All(p => Permissions.Contains(p));
+    }
+
+    public bool HasAnyPermission(params string[] permissions)
+    {
+        if (IsSuperAdmin) return true;
+        return permissions.Any(p => Permissions.Contains(p));
     }
 }

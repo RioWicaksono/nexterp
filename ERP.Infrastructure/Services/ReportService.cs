@@ -271,38 +271,38 @@ public class ReportService : IReportService
         return await GenerateGeneralLedgerAsync(organizationId, startDate, endDate, ct);
     }
 
-    public Task<byte[]> ExportReportAsync(ReportResult report, ExportFormat format, CancellationToken ct = default)
+    public Task<byte[]> ExportReportAsync(ReportResult report, ReportExportFormat format, CancellationToken ct = default)
     {
         return format switch
         {
-            ExportFormat.Csv => ExportToCsvAsync(report),
-            ExportFormat.Html => ExportToHtmlAsync(report),
-            ExportFormat.Excel => ExportToExcelAsync(report),
-            ExportFormat.Pdf => ExportToPdfAsync(report),
+            ReportExportFormat.Csv => ExportToCsvAsync(report),
+            ReportExportFormat.Html => ExportToHtmlAsync(report),
+            ReportExportFormat.Excel => ExportToExcelAsync(report),
+            ReportExportFormat.Pdf => ExportToPdfAsync(report),
             _ => throw new ArgumentException($"Unknown format: {format}")
         };
     }
 
-    public Task<byte[]> ExportPayrollReportAsync(PayrollReportResult report, ExportFormat format, CancellationToken ct = default)
+    public Task<byte[]> ExportPayrollReportAsync(PayrollReportResult report, ReportExportFormat format, CancellationToken ct = default)
     {
         return format switch
         {
-            ExportFormat.Csv => ExportPayrollToCsvAsync(report),
-            ExportFormat.Html => ExportPayrollToHtmlAsync(report),
-            ExportFormat.Excel => ExportPayrollToExcelAsync(report),
-            ExportFormat.Pdf => ExportPayrollToPdfAsync(report),
+            ReportExportFormat.Csv => ExportPayrollToCsvAsync(report),
+            ReportExportFormat.Html => ExportPayrollToHtmlAsync(report),
+            ReportExportFormat.Excel => ExportPayrollToExcelAsync(report),
+            ReportExportFormat.Pdf => ExportPayrollToPdfAsync(report),
             _ => throw new ArgumentException($"Unknown format: {format}")
         };
     }
 
-    public Task<byte[]> ExportFinancialReportAsync(FinancialReportResult report, ExportFormat format, CancellationToken ct = default)
+    public Task<byte[]> ExportFinancialReportAsync(FinancialReportResult report, ReportExportFormat format, CancellationToken ct = default)
     {
         return format switch
         {
-            ExportFormat.Csv => ExportFinancialToCsvAsync(report),
-            ExportFormat.Html => ExportFinancialToHtmlAsync(report),
-            ExportFormat.Excel => ExportFinancialToExcelAsync(report),
-            ExportFormat.Pdf => ExportFinancialToPdfAsync(report),
+            ReportExportFormat.Csv => ExportFinancialToCsvAsync(report),
+            ReportExportFormat.Html => ExportFinancialToHtmlAsync(report),
+            ReportExportFormat.Excel => ExportFinancialToExcelAsync(report),
+            ReportExportFormat.Pdf => ExportFinancialToPdfAsync(report),
             _ => throw new ArgumentException($"Unknown format: {format}")
         };
     }

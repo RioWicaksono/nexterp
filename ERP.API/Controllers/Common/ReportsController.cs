@@ -153,7 +153,7 @@ public class ReportsController : BaseApiController
     public async Task<IActionResult> ExportToCsv([FromBody] GenerateReportRequest request)
     {
         var report = await _reportService.GenerateReportAsync(request);
-        var bytes = await _reportService.ExportReportAsync(report, ExportFormat.Csv);
+        var bytes = await _reportService.ExportReportAsync(report, ReportExportFormat.Csv);
 
         return File(bytes, "text/csv", $"{request.Type}.csv");
     }
@@ -165,7 +165,7 @@ public class ReportsController : BaseApiController
     public async Task<IActionResult> ExportToHtml([FromBody] GenerateReportRequest request)
     {
         var report = await _reportService.GenerateReportAsync(request);
-        var bytes = await _reportService.ExportReportAsync(report, ExportFormat.Html);
+        var bytes = await _reportService.ExportReportAsync(report, ReportExportFormat.Html);
 
         return File(bytes, "text/html", $"{request.Type}.html");
     }
@@ -191,38 +191,38 @@ public class ReportsController : BaseApiController
         return File(bytes, contentType, $"Payroll_{year}_{month}.{GetExtension(exportFormat)}");
     }
 
-    private static ExportFormat ParseExportFormat(string format)
+    private static ReportExportFormat ParseExportFormat(string format)
     {
         return format.ToLowerInvariant() switch
         {
-            "csv" => ExportFormat.Csv,
-            "html" => ExportFormat.Html,
-            "excel" or "xlsx" => ExportFormat.Excel,
-            "pdf" => ExportFormat.Pdf,
-            _ => ExportFormat.Csv
+            "csv" => ReportExportFormat.Csv,
+            "html" => ReportExportFormat.Html,
+            "excel" or "xlsx" => ReportExportFormat.Excel,
+            "pdf" => ReportExportFormat.Pdf,
+            _ => ReportExportFormat.Csv
         };
     }
 
-    private static string GetContentType(ExportFormat format)
+    private static string GetContentType(ReportExportFormat format)
     {
         return format switch
         {
-            ExportFormat.Csv => "text/csv",
-            ExportFormat.Html => "text/html",
-            ExportFormat.Excel => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ExportFormat.Pdf => "application/pdf",
+            ReportExportFormat.Csv => "text/csv",
+            ReportExportFormat.Html => "text/html",
+            ReportExportFormat.Excel => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ReportExportFormat.Pdf => "application/pdf",
             _ => "application/octet-stream"
         };
     }
 
-    private static string GetExtension(ExportFormat format)
+    private static string GetExtension(ReportExportFormat format)
     {
         return format switch
         {
-            ExportFormat.Csv => "csv",
-            ExportFormat.Html => "html",
-            ExportFormat.Excel => "xlsx",
-            ExportFormat.Pdf => "pdf",
+            ReportExportFormat.Csv => "csv",
+            ReportExportFormat.Html => "html",
+            ReportExportFormat.Excel => "xlsx",
+            ReportExportFormat.Pdf => "pdf",
             _ => "bin"
         };
     }

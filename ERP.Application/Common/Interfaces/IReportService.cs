@@ -72,7 +72,7 @@ public interface IReportService
     /// </summary>
     Task<byte[]> ExportReportAsync(
         ReportResult report,
-        ExportFormat format,
+        ReportExportFormat format,
         CancellationToken ct = default);
 
     /// <summary>
@@ -80,7 +80,7 @@ public interface IReportService
     /// </summary>
     Task<byte[]> ExportPayrollReportAsync(
         PayrollReportResult report,
-        ExportFormat format,
+        ReportExportFormat format,
         CancellationToken ct = default);
 
     /// <summary>
@@ -88,6 +88,6 @@ public interface IReportService
     /// </summary>
     Task<byte[]> ExportFinancialReportAsync(
         FinancialReportResult report,
-        ExportFormat format,
+        ReportExportFormat format,
         CancellationToken ct = default);
 }
