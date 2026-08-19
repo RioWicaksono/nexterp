@@ -6,7 +6,8 @@ using Asp.Versioning;
 using ERP.API.Controllers.Base;
 using ERP.Application.Hrm.Commands.Employees;
 using ERP.Application.Hrm.DTOs;
-using ERP.Application.Hrm.Queries;
+using ERP.Application.Common.Queries.Employees;
+using HrmQueries = ERP.Application.Hrm.Queries;
 
 namespace ERP.API.Controllers.Hrm;
 
@@ -35,21 +36,13 @@ public class EmployeesController : BaseApiController
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? search = null,
-        [FromQuery] string? status = null,
-        [FromQuery] Guid? departmentId = null,
-        [FromQuery] string? sortBy = null,
-        [FromQuery] bool sortDescending = false,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetEmployeesPaginatedQuery
+        var query = new GetEmployeesQuery
         {
             Page = page,
             PageSize = pageSize,
-            Search = search,
-            Status = status,
-            DepartmentId = departmentId,
-            SortBy = sortBy,
-            SortDescending = sortDescending
+            Search = search
         };
 
         var result = await _mediator.Send(query, cancellationToken);
@@ -64,7 +57,7 @@ public class EmployeesController : BaseApiController
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var query = new GetEmployeeDetailsQuery { EmployeeId = id };
+        var query = new HrmQueries.GetEmployeeDetailsQuery { EmployeeId = id };
         var result = await _mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
@@ -76,7 +69,7 @@ public class EmployeesController : BaseApiController
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetLeaveBalance(Guid id, [FromQuery] int? year = null, CancellationToken cancellationToken = default)
     {
-        var query = new GetLeaveBalanceSummaryQuery
+        var query = new HrmQueries.GetLeaveBalanceSummaryQuery
         {
             EmployeeId = id,
             Year = year

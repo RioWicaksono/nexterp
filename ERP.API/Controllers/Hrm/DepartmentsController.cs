@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 
 using ERP.API.Controllers.Base;
+using ERP.Application.Common.Base;
 using ERP.Application.Hrm.Commands.Departments;
+using ERP.Application.Common.Queries.Departments;
 
 namespace ERP.API.Controllers.Hrm;
 
@@ -22,6 +24,28 @@ public class DepartmentsController : BaseApiController
     public DepartmentsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    /// <summary>
+    /// Get all departments with pagination
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDepartments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50,
+        [FromQuery] string? search = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetDepartmentsQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            Search = search
+        };
+
+        var result = await _mediator.Send(query, cancellationToken);
+        return HandleResult(result);
     }
 
     /// <summary>
@@ -109,6 +133,18 @@ public class PositionsController : BaseApiController
     public PositionsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    /// <summary>
+    /// Get all positions (simplified - returns empty list for now)
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPositions(CancellationToken cancellationToken = default)
+    {
+        // Return empty list for now - positions CRUD can be added later
+        var result = Result<object>.Success(new { items = new object[] { }, totalCount = 0, page = 1, pageSize = 50 });
+        return Ok(result);
     }
 
     /// <summary>
