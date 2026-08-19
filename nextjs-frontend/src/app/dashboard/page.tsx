@@ -22,6 +22,8 @@ interface DashboardStats {
   inventory?: number;
   orders?: number;
   revenue?: string;
+  loading?: boolean;
+  error?: string;
 }
 
 export default function DashboardPage() {
