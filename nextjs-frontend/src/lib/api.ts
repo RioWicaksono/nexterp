@@ -100,6 +100,27 @@ export const authApi = {
   },
 };
 
+// ─── Modules API ───────────────────────────────────────────
+
+export const modulesApi = {
+  getAll: async () => {
+    const response = await api.get<ApiResponse<ModuleDto[]>>('/modules');
+    return response.data;
+  },
+  getEnabled: async (orgId: string) => {
+    const response = await api.get<ApiResponse<ModuleDto[]>>(`/modules/enabled/${orgId}`);
+    return response.data;
+  },
+};
+
+interface ModuleDto {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isEnabled: boolean;
+}
+
 // ─── Dashboard API ────────────────────────────────────────────
 
 export const dashboardApi = {
