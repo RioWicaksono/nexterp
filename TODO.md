@@ -52,7 +52,7 @@ git add -A && git commit -m "message" && git push
 
 ## 🎯 AI TASK QUEUE (Execute Automatically)
 
-### Task 1: Dashboard Draggable Widgets ⭐ READY TO EXECUTE
+### Task 1: Dashboard Draggable Widgets ✅ COMPLETED
 ```
 Goal: Create draggable dashboard with customizable widgets
 
@@ -127,6 +127,19 @@ npm run storybook
 ---
 
 ## ✅ COMPLETED FEATURES
+
+### Task 1 - Dashboard Draggable Widgets (2026-08-20)
+- [x] @dnd-kit/core, @dnd-kit/sortable installed
+- [x] dashboardStore.ts with Zustand + persistence
+- [x] DraggableGrid.tsx with SortableContext
+- [x] WidgetWrapper.tsx with drag handle, resize, hide
+- [x] StatsCard.tsx widget
+- [x] ChartWidget.tsx with Recharts
+- [x] RecentActivity.tsx widget
+- [x] QuickActions.tsx widget
+- [x] Dashboard page integrated with draggable grid
+- [x] Lock/Unlock layout toggle
+- [x] Reset to default layout
 
 ### Phase 1 - Security (DONE)
 - [x] CORS allow-all removed → scoped origins
