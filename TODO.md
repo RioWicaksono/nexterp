@@ -68,18 +68,12 @@ Commands to run:
 cd nextjs-frontend && npm install @dnd-kit/core @dnd-kit/sortable
 ```
 
-### Task 2: Auto-Save Draft ⭐ READY TO EXECUTE
-```
-Goal: Auto-save form drafts to localStorage
-
-Files to create:
-- nextjs-frontend/src/hooks/useAutoSave.ts
-- nextjs-frontend/src/hooks/useDraftStorage.ts
-- nextjs-frontend/src/components/AutoSaveIndicator.tsx
-
-Forms to integrate:
-- All forms in nextjs-frontend/src/app/dashboard/*/page.tsx
-```
+### Task 2 - Auto-Save Draft (2026-08-20)
+- [x] useDraftStorage.ts - localStorage operations with TTL
+- [x] useAutoSave.ts - debounced auto-save hook
+- [x] AutoSaveIndicator.tsx - save status UI component
+- [x] Integrated with HRM page as example
+- [x] Draft restored on modal open, cleared on save
 
 ### Task 3: WebSocket Notifications ⚠️ COMPLEX - Need Confirmation
 ```

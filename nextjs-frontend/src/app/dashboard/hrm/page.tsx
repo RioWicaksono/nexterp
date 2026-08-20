@@ -5,10 +5,20 @@ import { employeesApi, departmentsApi, type EmployeeDto, type DepartmentDto } fr
 import { PageHeader } from '@/components/PageHeader';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { AutoSaveIndicator } from '@/components/AutoSaveIndicator';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useToast } from '@/hooks/useToast';
 import { Plus, Search, Edit2, Trash2, X, Loader2, ChevronLeft, ChevronRight, Building2, Users } from 'lucide-react';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
+
+type EmployeeFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  departmentId: string;
+};
 
 export default function HRMPage() {
   const [employees, setEmployees] = useState<EmployeeDto[]>([]);
@@ -22,7 +32,7 @@ export default function HRMPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeDto | null>(null);
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', departmentId: '' });
+  const [formData, setFormData] = useState<EmployeeFormData>({ firstName: '', lastName: '', email: '', phone: '', departmentId: '' });
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; employeeId: string | null; employeeName: string }>({
     isOpen: false,
@@ -31,6 +41,24 @@ export default function HRMPage() {
   });
 
   const toast = useToast();
+
+  // Auto-save hook
+  const {
+    status: autoSaveStatus,
+    lastSavedAt: autoSaveLastSavedAt,
+    hasDraft,
+    restoreDraft,
+    clearDraft,
+  } = useAutoSave<EmployeeFormData>({
+    formKey: 'hrm_employee_form',
+    data: formData,
+    debounceMs: 1500,
+    enabled: showModal && !editingEmployee,
+    onRestore: (data) => {
+      setFormData(data);
+      toast('info', 'Draft Restored', 'Your previous draft has been loaded');
+    },
+  });
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -80,6 +108,7 @@ export default function HRMPage() {
   const openCreate = () => {
     setEditingEmployee(null);
     setFormData({ firstName: '', lastName: '', email: '', phone: '', departmentId: '' });
+    clearDraft(); // Clear any existing draft for new form
     setShowModal(true);
   };
 
@@ -105,6 +134,7 @@ export default function HRMPage() {
         await employeesApi.create(formData);
         toast('success', 'Created!', 'Employee has been added');
       }
+      clearDraft(); // Clear draft after successful save
       setShowModal(false);
       fetchEmployees();
     } catch (err: unknown) {
@@ -273,7 +303,19 @@ export default function HRMPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingEmployee ? 'Edit Employee' : 'Add Employee'}</h3>
+              <div className="flex flex-col">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingEmployee ? 'Edit Employee' : 'Add Employee'}</h3>
+                {!editingEmployee && (
+                  <AutoSaveIndicator
+                    status={autoSaveStatus}
+                    lastSavedAt={autoSaveLastSavedAt}
+                    hasDraft={hasDraft}
+                    onRestore={restoreDraft}
+                    onClear={clearDraft}
+                    className="mt-1"
+                  />
+                )}
+              </div>
               <button onClick={() => setShowModal(false)} aria-label="Close dialog" className="p-1 hover:bg-slate-100 rounded transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-5 space-y-4">
