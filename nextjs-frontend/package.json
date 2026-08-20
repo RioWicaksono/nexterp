@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
@@ -35,6 +37,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/react": "^8.6.0",
+    "@storybook/react-vite": "^8.6.0",
+    "@storybook/test": "^8.6.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -42,6 +48,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "msw": "^2.15.0",
+    "react-is": "^19.2.8",
+    "storybook": "^8.6.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
   },

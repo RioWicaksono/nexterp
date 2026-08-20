@@ -101,30 +101,26 @@ Commands to run:
 cd ERP.API && dotnet add package Microsoft.AspNetCore.SignalR
 ```
 
-### Task 4: Mock Data (MSW) ✅ COMPLETED
-```
-Goal: Mock API responses for development
+### Task 4 - Mock Data (MSW) (2026-08-20)
+- [x] mockData.ts - comprehensive mock data for all entities
+- [x] handlers.ts - MSW request handlers with realistic delays
+- [x] browser.ts - MSW worker setup
+- [x] public/msw.js - service worker file
+- [x] .env.development with MSW_ENABLED option
+- [x] Enable via ?msw=true URL param or env var
 
-Files to create:
-- nextjs-frontend/src/lib/mockData.ts
-- nextjs-frontend/src/mocks/handlers.ts
-- nextjs-frontend/src/mocks/browser.ts
+### Task 5 - Storybook (2026-08-20)
+- [x] .storybook/main.ts - Storybook configuration
+- [x] .storybook/preview.ts - Preview settings with backgrounds
+- [x] StatsCard.stories.tsx - StatsCard component stories
+- [x] ChartWidget.stories.tsx - ChartWidget component stories
+- [x] RecentActivity.stories.tsx - RecentActivity component stories
+- [x] QuickActions.stories.tsx - QuickActions component stories
+- [x] AutoSaveIndicator.stories.tsx - AutoSaveIndicator stories
+- [x] ToastProvider.stories.tsx - ToastProvider demo
+- [x] npm scripts: storybook, build-storybook
 
-Commands to run:
-cd nextjs-frontend && npm install msw --save-dev
-npx msw init public --save
-```
-
-### Task 5: Storybook ⭐ READY TO EXECUTE
-```
-Goal: Component documentation and playground
-
-Commands to run:
-cd nextjs-frontend
-npm install @storybook/react @storybook/react-vite @storybook/addon-essentials --save-dev
-npx storybook init
-npm run storybook
-```
+Run: `npm run storybook`
 
 ---
 
