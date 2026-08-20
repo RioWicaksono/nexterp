@@ -75,6 +75,14 @@ cd nextjs-frontend && npm install @dnd-kit/core @dnd-kit/sortable
 - [x] Integrated with HRM page as example
 - [x] Draft restored on modal open, cleared on save
 
+### Task 4 - Mock Data (MSW) (2026-08-20)
+- [x] mockData.ts - comprehensive mock data for all entities
+- [x] handlers.ts - MSW request handlers with realistic delays
+- [x] browser.ts - MSW worker setup
+- [x] public/msw.js - service worker file
+- [x] .env.development with MSW_ENABLED option
+- [x] Enable via ?msw=true URL param or env var
+
 ### Task 3: WebSocket Notifications ⚠️ COMPLEX - Need Confirmation
 ```
 Goal: Real-time notifications via SignalR
@@ -93,7 +101,7 @@ Commands to run:
 cd ERP.API && dotnet add package Microsoft.AspNetCore.SignalR
 ```
 
-### Task 4: Mock Data (MSW) ⭐ READY TO EXECUTE
+### Task 4: Mock Data (MSW) ✅ COMPLETED
 ```
 Goal: Mock API responses for development
 
