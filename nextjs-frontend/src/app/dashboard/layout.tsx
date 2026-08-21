@@ -8,7 +8,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/NotificationBell';
 import {
   LayoutDashboard, Users, Package, ShoppingCart, DollarSign, Briefcase,
-  Settings, Shield, Key, Building2, LogOut, ChevronLeft, Menu, Layers,
+  Settings, Shield, Key, Building2, LogOut, ChevronLeft, Menu, Layers, Clock, Eye,
 } from 'lucide-react';
 
 const mainNav = [
@@ -24,6 +24,8 @@ const modulesNav = [
 ];
 
 const systemNav = [
+  { name: 'Activity', href: '/dashboard/activity', icon: Clock },
+  { name: 'Audit', href: '/dashboard/audit', icon: Eye },
   { name: 'Modules', href: '/dashboard/modules', icon: Layers },
   { name: 'Roles', href: '/dashboard/roles', icon: Shield },
   { name: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
