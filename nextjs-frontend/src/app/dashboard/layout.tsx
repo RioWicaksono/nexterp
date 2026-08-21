@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { NotificationBell } from '@/components/NotificationBell';
 import {
   LayoutDashboard, Users, Package, ShoppingCart, DollarSign, Briefcase,
   Settings, Shield, Key, Building2, LogOut, ChevronLeft, Menu, Layers,
@@ -130,8 +132,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <h1 className="text-sm font-medium text-slate-900 dark:text-white">
               {[...mainNav, ...modulesNav, ...systemNav].find(n => n.href === pathname)?.name || 'Dashboard'}
             </h1>
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <ThemeToggle />
+              <span className="text-xs text-slate-500">
+                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
             </div>
           </div>
         </header>

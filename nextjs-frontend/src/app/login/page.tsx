@@ -30,8 +30,9 @@ export default function LoginPage() {
       } else {
         setError(res.error || 'Login failed')
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Network error')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error';
+      setError(msg);
     } finally {
       setLoading(false)
     }

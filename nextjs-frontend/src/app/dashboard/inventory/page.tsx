@@ -45,9 +45,10 @@ export default function InventoryPage() {
         setItems([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load items');
-      toast('error', 'Error', err.message || 'Failed to load inventory items');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load items';
+      setError(msg);
+      toast('error', 'Error', msg);
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,9 @@ export default function InventoryPage() {
       if (result?.success && result.data) {
         setWarehouses(result.data.items || []);
       }
-    } catch {}
+    } catch (err) {
+      console.error('Failed to fetch warehouses:', err);
+    }
   }, []);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
@@ -115,8 +118,9 @@ export default function InventoryPage() {
       }
       setShowModal(false);
       fetchItems();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to save item');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save item';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -133,8 +137,9 @@ export default function InventoryPage() {
       toast('success', 'Deleted!', 'Stock item has been removed');
       setDeleteConfirm({ isOpen: false, itemId: null, itemName: '' });
       fetchItems();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to delete item');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete item';
+      toast('error', 'Error', msg);
     }
   };
 

@@ -6,9 +6,10 @@ import { PageHeader } from '@/components/PageHeader';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { AutoSaveIndicator } from '@/components/AutoSaveIndicator';
+import { ExportButton } from '@/components/ExportButton';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useToast } from '@/hooks/useToast';
-import { Plus, Search, Edit2, Trash2, X, Loader2, ChevronLeft, ChevronRight, Building2, Users } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, Loader2, ChevronLeft, ChevronRight, Building2, Users, Download } from 'lucide-react';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
@@ -88,7 +89,9 @@ export default function HRMPage() {
       if (result?.success && result.data) {
         setDepartments(result.data.items || []);
       }
-    } catch {}
+    } catch (err) {
+      console.error('Failed to fetch departments:', err);
+    }
   }, []);
 
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
@@ -167,6 +170,27 @@ export default function HRMPage() {
     setPage(1);
   };
 
+  // Export data preparation
+  const employeeExportColumns = [
+    { key: 'firstName', label: 'First Name', selected: true },
+    { key: 'lastName', label: 'Last Name', selected: true },
+    { key: 'email', label: 'Email', selected: true },
+    { key: 'phone', label: 'Phone', selected: true },
+    { key: 'department', label: 'Department', selected: true },
+    { key: 'employeeNumber', label: 'Employee Number', selected: true },
+    { key: 'isActive', label: 'Status', selected: true, formatter: (v: unknown) => v ? 'Active' : 'Inactive' },
+  ];
+
+  const employeeExportData = employees.map((emp) => ({
+    firstName: emp.firstName || '',
+    lastName: emp.lastName || '',
+    email: emp.email || '',
+    phone: emp.phone || '',
+    department: emp.department || '',
+    employeeNumber: emp.employeeNumber || '',
+    isActive: emp.isActive,
+  }));
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -177,9 +201,17 @@ export default function HRMPage() {
           { label: 'HRM' },
         ]}
         actions={
-          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            <Plus className="w-4 h-4" /> Add Employee
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={employeeExportData}
+              columns={employeeExportColumns}
+              filename="employees"
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-sm"
+            />
+            <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+              <Plus className="w-4 h-4" /> Add Employee
+            </button>
+          </div>
         }
       />
 

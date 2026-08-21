@@ -46,9 +46,10 @@ export default function PurchasingPage() {
         setOrders([]);
         setTotalCount(0);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load orders');
-      toast('error', 'Error', err.message || 'Failed to load purchase orders');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load orders';
+      setError(msg);
+      toast('error', 'Error', msg);
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,9 @@ export default function PurchasingPage() {
       if (result?.success && result.data) {
         setSuppliers(result.data.items || []);
       }
-    } catch {}
+    } catch (err) {
+      console.error('Failed to fetch suppliers:', err);
+    }
   }, []);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
@@ -85,8 +88,9 @@ export default function PurchasingPage() {
       toast('success', 'Created!', 'Purchase order has been created');
       setShowModal(false);
       fetchOrders();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to create order');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to create order';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -99,8 +103,9 @@ export default function PurchasingPage() {
       toast('success', 'Created!', 'Supplier has been added');
       setShowSupplierModal(false);
       fetchSuppliers();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || 'Failed to create supplier');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to create supplier';
+      toast('error', 'Error', msg);
     } finally {
       setSaving(false);
     }
@@ -115,8 +120,9 @@ export default function PurchasingPage() {
       await (purchaseOrdersApi as any)[action](id);
       toast('success', 'Updated!', `Order has been ${action === 'submit' ? 'submitted' : 'approved'}`);
       fetchOrders();
-    } catch (err: any) {
-      toast('error', 'Error', err.message || `Failed to ${action}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : `Failed to ${action}`;
+      toast('error', 'Error', msg);
     }
   };
 
@@ -128,8 +134,9 @@ export default function PurchasingPage() {
         toast('success', 'Cancelled!', 'Purchase order has been cancelled');
         setCancelConfirm({ isOpen: false, orderId: null, orderNumber: '' });
         fetchOrders();
-      } catch (err: any) {
-        toast('error', 'Error', err.message || 'Failed to cancel order');
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to cancel order';
+        toast('error', 'Error', msg);
       }
     })();
   };
