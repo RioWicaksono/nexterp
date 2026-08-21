@@ -80,3 +80,6 @@ ERP.WebUI/out/
 # Screenshots
 screenshots/
 *.png
+
+.vercel
+.env*

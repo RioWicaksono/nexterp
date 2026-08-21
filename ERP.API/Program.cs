@@ -221,6 +221,9 @@ builder.Services.AddScoped<IReportService, ReportService>();
 // Brute force protection for login
 builder.Services.AddScoped<ILoginRateLimitService, LoginRateLimitService>();
 
+// Global rate limiting service (in-memory fallback — Redis used when available)
+builder.Services.AddScoped<IRateLimitService, InMemoryRateLimitService>();
+
 // Redis caching service
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
@@ -380,16 +383,16 @@ using (var scope = app.Services.CreateScope())
             ON CONFLICT (""Id"") DO NOTHING;
         ");
 
-        // Seed Positions
+        // Seed Positions (schema: Title, Grade, DepartmentId — no Name/Code columns)
         var engineerPosId = Guid.Parse("00000000-0000-0000-0000-000000000020");
         var hrPosId = Guid.Parse("00000000-0000-0000-0000-000000000021");
         var managerPosId = Guid.Parse("00000000-0000-0000-0000-000000000022");
         await dbContext.Database.ExecuteSqlRawAsync($@"
-            INSERT INTO ""Positions"" (""Id"", ""OrganizationId"", ""Name"", ""Code"", ""Description"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
+            INSERT INTO ""Positions"" (""Id"", ""OrganizationId"", ""DepartmentId"", ""Title"", ""Description"", ""Grade"", ""IsActive"", ""IsDeleted"", ""CreatedAt"", ""UpdatedAt"")
             VALUES
-            ('{engineerPosId}', '{demoOrgId}', 'Software Engineer', 'SE', 'Software Engineer Position', TRUE, FALSE, NOW(), NOW()),
-            ('{hrPosId}', '{demoOrgId}', 'HR Manager', 'HRM', 'HR Manager Position', TRUE, FALSE, NOW(), NOW()),
-            ('{managerPosId}', '{demoOrgId}', 'Department Manager', 'MGR', 'Manager Position', TRUE, FALSE, NOW(), NOW())
+            ('{engineerPosId}', '{demoOrgId}', '{engineeringDeptId}', 'Software Engineer', 'Entry-level software developer', 1, TRUE, FALSE, NOW(), NOW()),
+            ('{hrPosId}', '{demoOrgId}', '{hrDeptId}', 'HR Manager', 'Human Resources Manager', 3, TRUE, FALSE, NOW(), NOW()),
+            ('{managerPosId}', '{demoOrgId}', '{engineeringDeptId}', 'Department Manager', 'Department Manager', 5, TRUE, FALSE, NOW(), NOW())
             ON CONFLICT (""Id"") DO NOTHING;
         ");
 
